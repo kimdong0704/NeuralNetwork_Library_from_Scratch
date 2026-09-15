@@ -1,16 +1,5 @@
 import math
 
-# Registry of activation functions, each paired with its derivative.
-# A derivative of None means the activation has no usable derivative for
-# gradient descent (e.g. the step function).
-#
-# "function" is called as function(x) for every activation except "step",
-# which additionally takes a threshold (bound per-Node via functools.partial,
-# since the threshold is a per-node setting, not a global one).
-#
-# "derivative" (when present) is called as derivative(y), where y is the
-# activation's *output* (matches how sigmoid_derivative is normally expressed).
-
 
 def step_function(x: float, threshold: float = 0.0) -> int:
     if x >= threshold:
@@ -20,7 +9,7 @@ def step_function(x: float, threshold: float = 0.0) -> int:
 
 
 def sigmoid_function(x: float) -> float:
-    # Guard against OverflowError from math.exp on very large |x|.
+    # guarding overflow error
     if x < -60:
         return 0.0
     if x > 60:
@@ -30,8 +19,6 @@ def sigmoid_function(x: float) -> float:
 
 
 def sigmoid_derivative(y: float) -> float:
-    # y here is expected to be a sigmoid *output* (i.e. already in (0, 1)),
-    # so this is sigmoid'(net) expressed via the output, per prediction.
     return y * (1 - y)
 
 
