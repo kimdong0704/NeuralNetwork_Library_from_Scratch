@@ -3,7 +3,7 @@ from collections.abc import Sequence
 from .config import EPOCHS, ERROR_THRESHOLD, LEARNING_RATE, MAX_EPOCHS
 from .network import NeuralNetwork
 from .trainer import train_by_epoch, train_by_error
-from visualizer import plot_errors
+from ai.visualizer import plot_errors
 
 # activation_function is an architectural choice for the network being
 # built here, not a training hyperparameter - so it lives here rather
