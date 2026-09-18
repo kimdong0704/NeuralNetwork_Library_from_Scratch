@@ -1,27 +1,29 @@
-# AND 
+import numpy as np
+
+# AND
 # x1  x2  |  target
 #  0   0  |    0
 #  0   1  |    0
 #  1   0  |    0
 #  1   1  |    1
-AND_INPUTS = [
+AND_INPUTS = np.array([
     [0, 0],
     [0, 1],
     [1, 0],
     [1, 1],
-]
-AND_TARGETS = [0, 0, 0, 1]
+])
+AND_TARGETS = np.array([0, 0, 0, 1])
 
-# XOR 
+# XOR
 # x1  x2  |  target
 #  0   0  |    0
 #  0   1  |    1
 #  1   0  |    1
 #  1   1  |    0
-XOR_INPUTS = [
+XOR_INPUTS = np.array([
     [0, 0],
     [0, 1],
     [1, 0],
     [1, 1],
-]
-XOR_TARGETS = [0, 1, 1, 0]
+])
+XOR_TARGETS = np.array([0, 1, 1, 0])
