@@ -38,23 +38,30 @@ class Layer:
         )
 
     def forward(self, inputs: np.ndarray) -> np.ndarray:
+        self.last_input = inputs
         totals = self.weights @ inputs + self.bias
-        return self.activation_function(totals)
+        self.last_output = self.activation_function(totals)
+        return self.last_output
 
-    def update(
-        self,
-        index: int,
-        inputs: np.ndarray,
-        prediction: float,
-        error: float,
-        learning_rate: float,
-    ) -> None:
+    def backward(self, delta: np.ndarray, learning_rate: float) -> np.ndarray:
+        """Computes this layer's weight/bias update and returns the error term
+        to propagate to the previous layer.
+
+        `delta` is dLoss/dOutput for this layer: the raw
+        (target - prediction) error for an output layer, or the propagated
+        gradient handed down from the next layer for a hidden layer.
+        Requires `forward` to have been called first (uses the cached
+        `last_input`/`last_output` from that pass).
+        """
         if self.gradient_descent:
             assert self.activation_derivative is not None
-            derivative = float(self.activation_derivative(np.array([prediction]))[0])
-            delta = learning_rate * error * derivative
+            amount_change = delta * self.activation_derivative(self.last_output)
         else:
-            delta = learning_rate * error
+            amount_change = delta
 
-        self.weights[index] += delta * inputs
-        self.bias[index] += delta
+        propagated = self.weights.T @ amount_change
+
+        self.weights += learning_rate * np.outer(amount_change, self.last_input)
+        self.bias += learning_rate * amount_change
+
+        return propagated

@@ -13,23 +13,23 @@ def run_experiment(
     inputs: np.ndarray,
     targets: np.ndarray,
 ) -> None:
-    network = create_model()
+    model = create_model()
 
-    trainer = Trainer(network)
+    trainer = Trainer(model)
 
     trainer.train(
         training_data=inputs,
         targets=targets,
     )
 
-    Reporter.report(network, inputs, targets)
+    Reporter.report(model, inputs, targets)
 
     filename = f"{gate}_{ACTIVATIONS.SIGMOID.name}"
     title = f"{gate.upper()} Gate | {ACTIVATIONS.SIGMOID.name} activation"
+    
     output_path = Visualizer(filename, trainer.errors_by_epoch, title).plot()
     Reporter.plot_saved(output_path)
 
 
 if __name__ == "__main__":
-    run_experiment(gate="and", inputs=AND_INPUTS, targets=AND_TARGETS)
     run_experiment(gate="xor", inputs=XOR_INPUTS, targets=XOR_TARGETS)

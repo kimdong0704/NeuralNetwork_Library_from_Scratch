@@ -7,15 +7,15 @@ from .reporter import Reporter
 
 class Trainer:
     def __init__(self, network: Network):
-        if len(network.layers) != 1 or network.layers[0].weights.shape[0] != 1:
-            raise NotImplementedError(
-                "Training only supports a single-layer, single-node network for "
-                "now; backpropagation for hidden layers/multiple nodes is not "
-                "implemented yet."
-            )
+        for layer in network.layers[:-1]:
+            if not layer.gradient_descent:
+                raise ValueError(
+                    "Hidden layers must use a differentiable activation (one "
+                    "with a derivative) for backpropagation; only the output "
+                    "layer may use a non-differentiable activation like STEP."
+                )
 
         self.network = network
-        self.layer = network.layers[0]
         self.errors_by_epoch: dict[int, float] = {}
 
     def train(
@@ -31,12 +31,11 @@ class Trainer:
 
             total_error = 0.0
             for inputs, target in zip(training_data, targets):
-                prediction = self.network.forward(inputs)[0]
-                error = target - prediction
-                total_error += abs(error)
+                prediction = self.network.forward(inputs)
+                error = np.atleast_1d(target) - prediction
+                total_error += np.sum(np.abs(error))
 
-                # single node
-                self.layer.update(0, inputs, prediction, error, LEARNING_RATE)
+                self.network.backward(error, LEARNING_RATE)
 
             average_error = total_error / len(training_data)
             self.errors_by_epoch[epoch] = average_error
@@ -44,8 +43,7 @@ class Trainer:
             Reporter.epoch_summary(
                 epoch=epoch,
                 total_epochs=MAX_EPOCHS,
-                average_error=average_error,
-                weights=self.layer.weights[0],
+                average_error=average_error
             )
 
             if average_error < ERROR_THRESHOLD:
