@@ -22,12 +22,24 @@ class Reporter:
         )
 
     @staticmethod
-    def training_completed() -> None:
+    def training_completed(epoch: int, total_epochs: int, average_error: float) -> None:
         print("Training completed.")
+        print("\nFinal Error:")
+        Reporter.epoch_summary(
+            epoch=epoch,
+            total_epochs=total_epochs,
+            average_error=average_error
+        )
 
     @staticmethod
-    def max_epochs_reached() -> None:
+    def max_epochs_reached(epoch: int, total_epochs: int, average_error: float) -> None:
         print("Reached maximum epochs without meeting the error threshold.")
+        print("\nFinal Error:")
+        Reporter.epoch_summary(
+            epoch=epoch,
+            total_epochs=total_epochs,
+            average_error=average_error
+        )
 
     @staticmethod
     def final_report(network: Network) -> None:

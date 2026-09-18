@@ -22,10 +22,12 @@ class Trainer:
         self,
         training_data: np.ndarray,
         targets: np.ndarray,
+        report_each_epoch: bool = True,
     ) -> None:
         self.errors_by_epoch = {}
 
         epoch = 0
+        average_error = 0.0
         while epoch < MAX_EPOCHS:
             epoch += 1
 
@@ -40,14 +42,23 @@ class Trainer:
             average_error = total_error / len(training_data)
             self.errors_by_epoch[epoch] = average_error
 
-            Reporter.epoch_summary(
-                epoch=epoch,
-                total_epochs=MAX_EPOCHS,
-                average_error=average_error
-            )
+            if report_each_epoch:
+                Reporter.epoch_summary(
+                    epoch=epoch,
+                    total_epochs=MAX_EPOCHS,
+                    average_error=average_error
+                )
 
             if average_error < ERROR_THRESHOLD:
-                Reporter.training_completed()
+                Reporter.training_completed(
+                    epoch=epoch,
+                    total_epochs=MAX_EPOCHS,
+                    average_error=average_error
+                )
                 return
-
-        Reporter.max_epochs_reached()
+        
+        Reporter.max_epochs_reached(
+            epoch=epoch,
+            total_epochs=MAX_EPOCHS,
+            average_error=average_error
+        )
