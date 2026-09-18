@@ -1,0 +1,245 @@
+
+=== Trial 1/10 (seed=1) ===
+Reached maximum epochs without meeting the error threshold.
+
+Final Error:
+Epoch: 5000/5000 | Average Error: 0.2618498847259433
+
+Layer 0 weights:
+[[-11.66670762   3.11157491]
+ [-12.94663123  -7.75428245]]
+Layer 0 bias:
+[-2.02955732  1.72862452]
+
+Layer 1 weights:
+[[  7.08261747 -11.03372607]]
+Layer 1 bias:
+[0.12959342]
+
+Inputs: [0 0] | Target: 0 | Prediction: 0.00022078217991319308
+Inputs: [0 1] | Target: 1 | Prediction: 0.995471540907722
+Inputs: [1 0] | Target: 1 | Prediction: 0.5323181832219974
+Inputs: [1 1] | Target: 0 | Prediction: 0.5323976809434973
+
+Saved error plot to tests\20260918_052858\1_xor_sigmoid.png
+
+=== Trial 2/10 (seed=2) ===
+Training completed.
+
+Final Error:
+Epoch: 727/5000 | Average Error: 0.04429139803530373
+
+Layer 0 weights:
+[[ -9.44712695 -10.32499876]
+ [ -5.83895161  -9.01034327]]
+Layer 0 bias:
+[ 3.36351432 11.13215145]
+
+Layer 1 weights:
+[[-11.77517491   6.34561204]]
+Layer 1 bias:
+[-2.8657613]
+
+Inputs: [0 0] | Target: 0 | Prediction: 0.00037006051602058424
+Inputs: [0 1] | Target: 1 | Prediction: 0.9421195327915541
+Inputs: [1 0] | Target: 1 | Prediction: 0.9683646608810549
+Inputs: [1 1] | Target: 0 | Prediction: 0.06208225671491612
+
+Saved error plot to tests\20260918_052858\2_xor_sigmoid.png
+
+=== Trial 3/10 (seed=3) ===
+Training completed.
+
+Final Error:
+Epoch: 387/5000 | Average Error: 0.04753109237264354
+
+Layer 0 weights:
+[[ -5.99387441  -5.53071603]
+ [-10.21191947  -9.1888665 ]]
+Layer 0 bias:
+[7.96935532 2.88110545]
+
+Layer 1 weights:
+[[  6.34489393 -11.16533027]]
+Layer 1 bias:
+[-2.74908941]
+
+Inputs: [0 0] | Target: 0 | Prediction: 0.0009304693013214526
+Inputs: [0 1] | Target: 1 | Prediction: 0.9554755801993375
+Inputs: [1 0] | Target: 1 | Prediction: 0.9435172090714089
+Inputs: [1 1] | Target: 0 | Prediction: 0.07090804943577664
+
+Saved error plot to tests\20260918_052858\3_xor_sigmoid.png
+
+=== Trial 4/10 (seed=4) ===
+Training completed.
+
+Final Error:
+Epoch: 3079/5000 | Average Error: 0.03937022406748507
+
+Layer 0 weights:
+[[-11.93206152  -7.16197052]
+ [-10.88914493 -12.63500197]]
+Layer 0 bias:
+[13.2522804   2.17518624]
+
+Layer 1 weights:
+[[  7.75355114 -12.84192147]]
+Layer 1 bias:
+[-2.73405761]
+
+Inputs: [0 0] | Target: 0 | Prediction: 0.0014824840330594845
+Inputs: [0 1] | Target: 1 | Prediction: 0.9933178145638761
+Inputs: [1 0] | Target: 1 | Prediction: 0.9671714165053914
+Inputs: [1 1] | Target: 0 | Prediction: 0.06229183524732549
+
+Saved error plot to tests\20260918_052858\4_xor_sigmoid.png
+
+=== Trial 5/10 (seed=5) ===
+Reached maximum epochs without meeting the error threshold.
+
+Final Error:
+Epoch: 5000/5000 | Average Error: 0.2909010598456102
+
+Layer 0 weights:
+[[-10.03363914 -12.25207908]
+ [ -4.78672758  -6.81707186]]
+Layer 0 bias:
+[ 1.20064108 -3.73163173]
+
+Layer 1 weights:
+[[-9.49430191 -1.99330511]]
+Layer 1 bias:
+[0.64879804]
+
+Inputs: [0 0] | Target: 0 | Prediction: 0.0012349106685262355
+Inputs: [0 1] | Target: 1 | Prediction: 0.6566938121874228
+Inputs: [1 0] | Target: 1 | Prediction: 0.6563375919157666
+Inputs: [1 1] | Target: 0 | Prediction: 0.6567394533074892
+
+Saved error plot to tests\20260918_052858\5_xor_sigmoid.png
+
+=== Trial 6/10 (seed=6) ===
+Training completed.
+
+Final Error:
+Epoch: 1492/5000 | Average Error: 0.042033217872338303
+
+Layer 0 weights:
+[[-12.38652062 -11.11920042]
+ [-10.14261828  -9.25913335]]
+Layer 0 bias:
+[ 2.51165807 14.02736261]
+
+Layer 1 weights:
+[[-14.31941523   7.15136827]]
+Layer 1 bias:
+[-2.33897121]
+
+Inputs: [0 0] | Target: 0 | Prediction: 0.00021764570684810496
+Inputs: [0 1] | Target: 1 | Prediction: 0.9914185937130421
+Inputs: [1 0] | Target: 1 | Prediction: 0.9906929989829045
+Inputs: [1 1] | Target: 0 | Prediction: 0.09062838076041012
+
+Saved error plot to tests\20260918_052858\6_xor_sigmoid.png
+
+=== Trial 7/10 (seed=7) ===
+Reached maximum epochs without meeting the error threshold.
+
+Final Error:
+Epoch: 5000/5000 | Average Error: 0.2906680538349668
+
+Layer 0 weights:
+[[ -3.87405078  -5.87801777]
+ [-10.48582228 -14.34759322]]
+Layer 0 bias:
+[-4.25433554  1.52154369]
+
+Layer 1 weights:
+[[-0.99296713 -9.23149413]]
+Layer 1 bias:
+[0.64842073]
+
+Inputs: [0 0] | Target: 0 | Prediction: 0.0009650375708399767
+Inputs: [0 1] | Target: 1 | Prediction: 0.6566399867588636
+Inputs: [1 0] | Target: 1 | Prediction: 0.6563222157628621
+Inputs: [1 1] | Target: 0 | Prediction: 0.6566543035850745
+
+Saved error plot to tests\20260918_052858\7_xor_sigmoid.png
+
+=== Trial 8/10 (seed=8) ===
+Reached maximum epochs without meeting the error threshold.
+
+Final Error:
+Epoch: 5000/5000 | Average Error: 0.2519155498774357
+
+Layer 0 weights:
+[[-11.55563193   2.84294466]
+ [-12.94989375  -9.02198268]]
+Layer 0 bias:
+[-1.79225447  1.74941178]
+
+Layer 1 weights:
+[[  7.06356127 -11.21709763]]
+Layer 1 bias:
+[1.62632797]
+
+Inputs: [0 0] | Target: 0 | Prediction: 0.000986238835804398
+Inputs: [0 1] | Target: 1 | Prediction: 0.9989437673152547
+Inputs: [1 0] | Target: 1 | Prediction: 0.8356464802154513
+Inputs: [1 1] | Target: 0 | Prediction: 0.835692560869713
+
+Saved error plot to tests\20260918_052858\8_xor_sigmoid.png
+
+=== Trial 9/10 (seed=9) ===
+Reached maximum epochs without meeting the error threshold.
+
+Final Error:
+Epoch: 5000/5000 | Average Error: 0.33692482026441806
+
+Layer 0 weights:
+[[-10.02654332 -12.23399368]
+ [ -3.98838842  -5.79003785]]
+Layer 0 bias:
+[ 1.17596213 -4.00003195]
+
+Layer 1 weights:
+[[-9.61065615 -0.62440443]]
+Layer 1 bias:
+[1.79049214]
+
+Inputs: [0 0] | Target: 0 | Prediction: 0.0038134376379457824
+Inputs: [0 1] | Target: 1 | Prediction: 0.8569647527851719
+Inputs: [1 0] | Target: 1 | Prediction: 0.8567927663036669
+Inputs: [1 1] | Target: 0 | Prediction: 0.8569875228968029
+
+Saved error plot to tests\20260918_052858\9_xor_sigmoid.png
+
+=== Trial 10/10 (seed=10) ===
+Reached maximum epochs without meeting the error threshold.
+
+Final Error:
+Epoch: 5000/5000 | Average Error: 0.3369328769617802
+
+Layer 0 weights:
+[[ -5.5224962   -7.7186502 ]
+ [ -9.86561504 -12.13888323]]
+Layer 0 bias:
+[-2.96503525  1.16303585]
+
+Layer 1 weights:
+[[-2.63383783 -9.40547943]]
+Layer 1 bias:
+[1.78993831]
+
+Inputs: [0 0] | Target: 0 | Prediction: 0.004049581186682444
+Inputs: [0 1] | Target: 1 | Prediction: 0.8568925794904284
+Inputs: [1 0] | Target: 1 | Prediction: 0.8566614232028718
+Inputs: [1 1] | Target: 0 | Prediction: 0.856919681812262
+
+Saved error plot to tests\20260918_052858\10_xor_sigmoid.png
+
+Successful trials: 4/10
+Average epochs to converge: 1421.25
+
+Saved 10 plots to tests\20260918_052858

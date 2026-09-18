@@ -30,7 +30,7 @@ def run_trial(
     seed: int,
     trial_number: int,
     output_dir: str,
-) -> bool:
+) -> tuple[bool, int]:
     np.random.seed(seed)
 
     model = create_model()
@@ -51,8 +51,10 @@ def run_trial(
 
     Reporter.plot_saved(output_path)
 
+    final_epoch = list(trainer.errors_by_epoch.keys())[-1]
     final_error = list(trainer.errors_by_epoch.values())[-1]
-    return final_error < ERROR_THRESHOLD
+    converged = final_error < ERROR_THRESHOLD
+    return converged, final_epoch
 
 
 def run_test(gate: str, seeds: list[int]) -> None:
@@ -66,12 +68,18 @@ def run_test(gate: str, seeds: list[int]) -> None:
 
     with open(result_path, "w") as result_file, redirect_stdout(result_file):
         successful_trials = 0
+        convergence_epochs = []
         for trial_number, seed in enumerate(seeds, start=1):
             print(f"\n=== Trial {trial_number}/{len(seeds)} (seed={seed}) ===")
-            if run_trial(gate, inputs, targets, seed, trial_number, output_dir):
+            converged, epoch = run_trial(gate, inputs, targets, seed, trial_number, output_dir)
+            if converged:
                 successful_trials += 1
+                convergence_epochs.append(epoch)
 
         print(f"\nSuccessful trials: {successful_trials}/{len(seeds)}")
+        if convergence_epochs:
+            average_epochs = sum(convergence_epochs) / len(convergence_epochs)
+            print(f"Average epochs to converge: {average_epochs:.2f}")
         print(f"\nSaved {len(seeds)} plots to {output_dir}")
 
     print(f"Results written to {result_path}")
