@@ -1,67 +1,72 @@
 from typing import Callable
 
-import numpy as np
+from .node import Node
 
 
 class Layer:
-    def __init__(
-        self,
-        weights: np.ndarray,
-        activation_function: Callable[[np.ndarray], np.ndarray],
-        activation_derivative: Callable[[np.ndarray], np.ndarray] | None,
-    ):
-        self.weights = weights
-        self.bias = np.zeros(weights.shape[0], dtype=float)
-        self.activation_function = activation_function
-        self.activation_derivative = activation_derivative
-        self.gradient_descent = activation_derivative is not None
+    def __init__(self, nodes: list[Node]):
+        self.nodes = nodes
+
+        self.gradient_descent = True
+        for node in nodes:
+            if not node.gradient_descent:
+                self.gradient_descent = False
+                break
 
     @classmethod
     def build(
         cls,
         input_size: int,
         output_size: int,
-        weight: np.ndarray,
-        activation_function: Callable[[np.ndarray], np.ndarray],
-        activation_derivative: Callable[[np.ndarray], np.ndarray] | None,
+        weight: list[list[float]],
+        activation_function: Callable[[float], float],
+        activation_derivative: Callable[[float], float] | None,
     ) -> "Layer":
-        weights = np.asarray(weight, dtype=float)
-        if weights.shape != (output_size, input_size):
-            raise ValueError(
-                f"weight has shape {weights.shape}, expected {(output_size, input_size)}"
+        if len(weight) != output_size:
+            raise ValueError(f"weight has {len(weight)} rows, expected {output_size}")
+
+        nodes = []
+        for row in weight:
+            if len(row) != input_size:
+                raise ValueError(f"weight row has {len(row)} values, expected {input_size}")
+
+            nodes.append(
+                Node(
+                    weights=list(map(float, row)),
+                    activation_function=activation_function,
+                    activation_derivative=activation_derivative,
+                )
             )
 
-        return cls(
-            weights=weights,
-            activation_function=activation_function,
-            activation_derivative=activation_derivative,
-        )
+        return cls(nodes)
 
-    def forward(self, inputs: np.ndarray) -> np.ndarray:
-        self.last_input = inputs
-        totals = self.weights @ inputs + self.bias
-        self.last_output = self.activation_function(totals)
-        return self.last_output
+    @property
+    def weights(self) -> list[list[float]]:
+        weights = []
+        for node in self.nodes:
+            weights.append(node.weights)
+        return weights
 
-    def backward(self, delta: np.ndarray, learning_rate: float) -> np.ndarray:
-        """Computes this layer's weight/bias update and returns the error term
-        to propagate to the previous layer.
+    @property
+    def bias(self) -> list[float]:
+        bias = []
+        for node in self.nodes:
+            bias.append(node.bias)
+        return bias
 
-        `delta` is dLoss/dOutput for this layer: the raw
-        (target - prediction) error for an output layer, or the propagated
-        gradient handed down from the next layer for a hidden layer.
-        Requires `forward` to have been called first (uses the cached
-        `last_input`/`last_output` from that pass).
-        """
-        if self.gradient_descent:
-            assert self.activation_derivative is not None
-            amount_change = delta * self.activation_derivative(self.last_output)
-        else:
-            amount_change = delta
+    def forward(self, inputs: list[float]) -> list[float]:
+        outputs = []
+        for node in self.nodes:
+            outputs.append(node.forward(inputs))
+        return outputs
 
-        propagated = self.weights.T @ amount_change
+    def backward(self, delta: list[float], learning_rate: float) -> list[float]:
+        propagated = [0.0] * len(self.nodes[0].weights)
 
-        self.weights += learning_rate * np.outer(amount_change, self.last_input)
-        self.bias += learning_rate * amount_change
+        for node, node_delta in zip(self.nodes, delta):
+            contributions = node.backward(node_delta, learning_rate)
+            
+            for index in range(len(propagated)):
+                propagated[index] += contributions[index]
 
         return propagated

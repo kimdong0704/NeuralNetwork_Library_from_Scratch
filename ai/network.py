@@ -1,5 +1,3 @@
-import numpy as np
-
 from .layer import Layer
 
 
@@ -7,7 +5,7 @@ class Network:
     def __init__(self, *layers: Layer):
         self.layers: list[Layer] = list(layers)
 
-    def forward(self, inputs: np.ndarray) -> np.ndarray:
+    def forward(self, inputs: list[float]) -> list[float]:
         values = inputs
 
         for layer in self.layers:
@@ -15,7 +13,7 @@ class Network:
 
         return values
 
-    def backward(self, error: np.ndarray, learning_rate: float) -> np.ndarray:
+    def backward(self, error: list[float], learning_rate: float) -> list[float]:
         """Backpropagates `error` (target - prediction, at the output layer)
         through the layers in reverse, updating each one's weights/bias.
         Must be called after `forward` so each layer has its cached

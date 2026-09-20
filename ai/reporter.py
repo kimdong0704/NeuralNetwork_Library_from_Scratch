@@ -1,5 +1,3 @@
-import numpy as np
-
 from .network import Network
 
 
@@ -7,7 +5,7 @@ class Reporter:
     """Centralizes the console output produced during training and reporting."""
 
     @staticmethod
-    def report(network: Network, inputs: np.ndarray, targets: np.ndarray) -> None:
+    def report(network: Network, inputs: list[list[float]], targets: list[float]) -> None:
         Reporter.final_report(network)
 
         for input_row, target in zip(inputs, targets):
@@ -50,7 +48,7 @@ class Reporter:
             print()
 
     @staticmethod
-    def prediction(input_row: np.ndarray, target: float, prediction: float) -> None:
+    def prediction(input_row: list[float], target: float, prediction: float) -> None:
         print(f"Inputs: {input_row} | Target: {target} | Prediction: {prediction}")
 
     @staticmethod

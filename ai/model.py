@@ -1,5 +1,3 @@
-import numpy as np
-
 from .activations import ACTIVATIONS
 from .helpers import resolve_activation, zero_weights, random_weights
 from .layer import Layer

@@ -1,5 +1,3 @@
-import numpy as np
-
 from ai.activations import ACTIVATIONS
 from ai.model import create_model
 from ai.reporter import Reporter
@@ -10,8 +8,8 @@ from data import AND_INPUTS, AND_TARGETS, XOR_INPUTS, XOR_TARGETS
 
 def run_experiment(
     gate: str,
-    inputs: np.ndarray,
-    targets: np.ndarray,
+    inputs: list[list[float]],
+    targets: list[float],
 ) -> None:
     model = create_model()
 

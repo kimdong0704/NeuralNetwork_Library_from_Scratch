@@ -1,5 +1,3 @@
-import numpy as np
-
 from .config import ERROR_THRESHOLD, LEARNING_RATE, MAX_EPOCHS
 from .network import Network
 from .reporter import Reporter
@@ -20,8 +18,8 @@ class Trainer:
 
     def train(
         self,
-        training_data: np.ndarray,
-        targets: np.ndarray,
+        training_data: list[list[float]],
+        targets: list[float] | list[list[float]],
         report_each_epoch: bool = True,
     ) -> None:
         self.errors_by_epoch = {}
@@ -34,8 +32,19 @@ class Trainer:
             total_error = 0.0
             for inputs, target in zip(training_data, targets):
                 prediction = self.network.forward(inputs)
-                error = np.atleast_1d(target) - prediction
-                total_error += np.sum(np.abs(error))
+
+                target_values = None
+
+                if isinstance(target, (list, tuple)):
+                    target_values = target
+                else:
+                    target_values = [target]
+
+                error = []
+                for target_value, predicted_value in zip(target_values, prediction):
+                    difference = target_value - predicted_value
+                    error.append(difference)
+                    total_error += abs(difference)
 
                 self.network.backward(error, LEARNING_RATE)
 

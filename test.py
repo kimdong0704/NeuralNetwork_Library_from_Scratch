@@ -1,8 +1,7 @@
 import os
+import random
 from contextlib import redirect_stdout
 from datetime import datetime
-
-import numpy as np
 
 from ai.activations import ACTIVATIONS
 from ai.config import ERROR_THRESHOLD
@@ -25,13 +24,13 @@ OUTPUT_DIR = "tests"
 
 def run_trial(
     gate: str,
-    inputs: np.ndarray,
-    targets: np.ndarray,
+    inputs: list[list[float]],
+    targets: list[float],
     seed: int,
     trial_number: int,
     output_dir: str,
 ) -> tuple[bool, int]:
-    np.random.seed(seed)
+    random.seed(seed)
 
     model = create_model()
     trainer = Trainer(model)
