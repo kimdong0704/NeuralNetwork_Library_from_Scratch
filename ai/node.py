@@ -2,8 +2,6 @@ from typing import Callable
 
 
 class Node:
-    """A single neuron: its weights, bias, and the calculations done for it."""
-
     def __init__(
         self,
         weights: list[float],

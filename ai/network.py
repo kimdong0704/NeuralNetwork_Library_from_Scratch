@@ -14,12 +14,6 @@ class Network:
         return values
 
     def backward(self, error: list[float], learning_rate: float) -> list[float]:
-        """Backpropagates `error` (target - prediction, at the output layer)
-        through the layers in reverse, updating each one's weights/bias.
-        Must be called after `forward` so each layer has its cached
-        input/output from that pass. Returns the gradient propagated past
-        the first layer (dLoss/dInput of the whole network).
-        """
         gradient = error
 
         for layer in reversed(self.layers):
