@@ -10,7 +10,7 @@ from ai.reporter import Reporter
 from ai.trainer import Trainer
 from ai.visualizer import Visualizer
 
-from data import AND_INPUTS, AND_TARGETS, XOR_INPUTS, XOR_TARGETS
+from lab2_data.data import AND_INPUTS, AND_TARGETS, XOR_INPUTS, XOR_TARGETS
 
 GATES = {
     "xor": (XOR_INPUTS, XOR_TARGETS),
@@ -19,7 +19,7 @@ GATES = {
 
 SEEDS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
-OUTPUT_DIR = "tests"
+OUTPUT_DIR = "lab2_results"
 
 
 def run_trial(
@@ -34,7 +34,7 @@ def run_trial(
 
     model = create_model()
     trainer = Trainer(model)
-    trainer.train(training_data=inputs, targets=targets, report_each_epoch=False)
+    trainer.train(training_data=inputs, targets=targets)
 
     Reporter.report(model, inputs, targets)
 

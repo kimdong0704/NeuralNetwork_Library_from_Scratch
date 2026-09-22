@@ -4,7 +4,7 @@ from ai.reporter import Reporter
 from ai.trainer import Trainer
 from ai.visualizer import Visualizer
 
-from data import AND_INPUTS, AND_TARGETS, XOR_INPUTS, XOR_TARGETS
+from lab1_data.data import AND_INPUTS, AND_TARGETS, XOR_INPUTS, XOR_TARGETS
 
 def run_experiment(
     gate: str,

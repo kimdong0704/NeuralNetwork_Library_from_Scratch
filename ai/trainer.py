@@ -1,4 +1,4 @@
-from .config import ERROR_THRESHOLD, LEARNING_RATE, MAX_EPOCHS
+from .config import ERROR_THRESHOLD, LEARNING_RATE, MAX_EPOCHS, REPORT_EACH_EPOCH, REPORT_INTERVAL
 from .network import Network
 from .reporter import Reporter
 
@@ -20,7 +20,6 @@ class Trainer:
         self,
         training_data: list[list[float]],
         targets: list[float] | list[list[float]],
-        report_each_epoch: bool = True,
     ) -> None:
         self.errors_by_epoch = {}
 
@@ -51,7 +50,7 @@ class Trainer:
             average_error = total_error / len(training_data)
             self.errors_by_epoch[epoch] = average_error
 
-            if report_each_epoch:
+            if REPORT_EACH_EPOCH and epoch % REPORT_INTERVAL == 0:
                 Reporter.epoch_summary(
                     epoch=epoch,
                     total_epochs=MAX_EPOCHS,

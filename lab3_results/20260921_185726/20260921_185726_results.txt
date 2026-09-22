@@ -1,0 +1,19 @@
+=== Model Structure ===
+Perceptron:
+  Input: 2 nodes
+  Layer 1 (output, sigmoid): 1 node
+
+=== Training Configuration ===
+Learning rate: 0.05
+Error threshold: 0.0001
+Epochs trained: 5000
+Average loss at end of training: 0.18452976722897266
+
+=== Final Weights and Bias ===
+Layer 1 weights:
+  Node 1: [0.8874187634084348, -2.321134819167818]
+Layer 1 bias: [-0.05031036201531784]
+
+=== Validation Results ===
+Misclassified / total: 39 / 300
+Accuracy: 87.00%

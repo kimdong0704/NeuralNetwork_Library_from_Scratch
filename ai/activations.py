@@ -21,6 +21,15 @@ def sigmoid_derivative(y: float) -> float:
     return y * (1 - y)
 
 
+def relu_function(x: float) -> float:
+    return x if x > 0 else 0.0
+
+
+def relu_derivative(y: float) -> float:
+    # relu derivative is step function
+    return 1.0 if y > 0 else 0.0
+
+
 @dataclass(frozen=True)
 class Activation:
     name: str
@@ -38,4 +47,10 @@ class ACTIVATIONS:
         name="sigmoid",
         function=sigmoid_function,
         derivative=sigmoid_derivative
+    )
+
+    RELU = Activation(
+        name="relu",
+        function=relu_function,
+        derivative=relu_derivative
     )
