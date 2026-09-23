@@ -17,6 +17,9 @@ MAX_EPOCHS = 500
 # throughput via vectorized batch matrix ops
 BATCH_SIZE = 32
 
+# whether the training data is put in a new random order every epoch
+SHUFFLE = False
+
 # whether the training loop prints an epoch report at all
 REPORT_EACH_EPOCH = True
 

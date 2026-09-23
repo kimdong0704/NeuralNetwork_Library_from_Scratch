@@ -1,3 +1,4 @@
+import math
 from dataclasses import dataclass
 from typing import Callable
 
@@ -8,6 +9,18 @@ def mse_function(target: float, predicted: float) -> float:
 
 def mse_derivative(target: float, predicted: float) -> float:
     return -2 * (target - predicted)
+
+# Cross Entropy Function
+# summed over the outputs of a sample by the trainer, giving -sum(t * log(p))
+# clipping keeps log(0) and 0/0 out of the math when a prediction reaches exactly 0
+CROSS_ENTROPY_MIN_CUT = 1e-12
+
+def cross_entropy_function(predicted: float, target: float) -> float:
+    return -target * math.log(max(predicted, CROSS_ENTROPY_MIN_CUT))
+
+def cross_entropy_derivative(predicted: float, target: float) -> float:
+    # through the softmax jacobian this becomes (target - predicted)
+    return target / max(predicted, CROSS_ENTROPY_MIN_CUT)
 
 
 @dataclass(frozen=True)
@@ -21,4 +34,10 @@ class COSTS:
         name="mse",
         function=mse_function,
         derivative=mse_derivative
+    )
+
+    CROSS_ENTROPY = Cost(
+        name="cross_entropy",
+        function=cross_entropy_function,
+        derivative=cross_entropy_derivative
     )
