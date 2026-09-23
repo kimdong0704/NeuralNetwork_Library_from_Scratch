@@ -2,6 +2,8 @@ from typing import Callable
 
 import numpy as np
 
+from .activations import softmax_derivative, softmax_function
+
 
 class Layer:
     def __init__(
@@ -9,7 +11,7 @@ class Layer:
         weights: np.ndarray,
         bias: np.ndarray,
         activation_function: Callable[[np.ndarray], np.ndarray],
-        activation_derivative: Callable[[np.ndarray], np.ndarray] | None,
+        activation_derivative: Callable[..., np.ndarray] | None,
     ):
         self.weights = weights
         self.bias = bias
@@ -25,7 +27,7 @@ class Layer:
         weight: np.ndarray,
         bias: np.ndarray,
         activation_function: Callable[[np.ndarray], np.ndarray],
-        activation_derivative: Callable[[np.ndarray], np.ndarray] | None
+        activation_derivative: Callable[..., np.ndarray] | None
     ) -> "Layer":
         weights = np.array(weight, dtype=float)
         bias_values = np.array(bias, dtype=float)
@@ -48,7 +50,10 @@ class Layer:
     def backward(self, deltas: np.ndarray, learning_rate: float) -> np.ndarray:
         deltas = np.asarray(deltas, dtype=float)
 
-        if self.gradient_descent:
+        if self.activation_function is softmax_function:
+            # softmax couples its outputs, so its derivative needs the incoming deltas too
+            dz = softmax_derivative(self.last_output, deltas)
+        elif self.gradient_descent:
             assert self.activation_derivative is not None
             dz = deltas * self.activation_derivative(self.last_output)
         else:

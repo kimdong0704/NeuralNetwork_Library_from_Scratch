@@ -28,12 +28,22 @@ def relu_derivative(y: np.ndarray) -> np.ndarray:
     # relu derivative is step function
     return np.where(y > 0, 1.0, 0.0)
 
+# SOFTMAX Functions
+# softmax couples every output of a layer, so it is applied across the last axis (one row per sample)
+def softmax_function(x: np.ndarray) -> np.ndarray:
+    # subtracting the row max guards overflow; softmax is unchanged by shifting all inputs
+    exps = np.exp(x - np.max(x, axis=-1, keepdims=True))
+    return exps / np.sum(exps, axis=-1, keepdims=True)
+
+def softmax_derivative(y: np.ndarray, delta: np.ndarray) -> np.ndarray:
+    # full jacobian applied to delta: dz_i = y_i * (delta_i - sum_j delta_j * y_j)
+    return y * (delta - np.sum(delta * y, axis=-1, keepdims=True))
 
 @dataclass(frozen=True)
 class Activation:
     name: str
     function: Callable[..., np.ndarray]
-    derivative: Callable[[np.ndarray], np.ndarray] | None
+    derivative: Callable[..., np.ndarray] | None
 
 class ACTIVATIONS:
     STEP = Activation(
@@ -52,4 +62,10 @@ class ACTIVATIONS:
         name="relu",
         function=relu_function,
         derivative=relu_derivative
+    )
+
+    SOFTMAX = Activation(
+        name="softmax",
+        function=softmax_function,
+        derivative=softmax_derivative
     )

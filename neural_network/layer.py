@@ -1,11 +1,13 @@
 from typing import Callable
 
+from .activations import identity_derivative, identity_function, softmax_derivative, softmax_function
 from .node import Node
 
 
 class Layer:
-    def __init__(self, nodes: list[Node]):
+    def __init__(self, nodes: list[Node], softmax: bool = False):
         self.nodes = nodes
+        self.softmax = softmax
 
         self.gradient_descent = True
         for node in nodes:
@@ -20,14 +22,20 @@ class Layer:
         output_size: int,
         weight: list[list[float]],
         bias: list[float],
-        activation_function: Callable[[float], float],
-        activation_derivative: Callable[[float], float] | None
+        activation_function: Callable[..., float | list[float]],
+        activation_derivative: Callable[..., float | list[float]] | None
     ) -> "Layer":
         if len(weight) != output_size:
             raise ValueError(f"weight has {len(weight)} rows, expected {output_size}")
 
         if len(bias) != output_size:
             raise ValueError(f"bias has {len(bias)} values, expected {output_size}")
+
+        # softmax needs every node's output at once, so the nodes stay linear and the layer applies it
+        softmax = activation_function is softmax_function
+        if softmax:
+            activation_function = identity_function
+            activation_derivative = identity_derivative
 
         nodes = []
         for row, node_bias in zip(weight, bias):
@@ -43,7 +51,7 @@ class Layer:
                 )
             )
 
-        return cls(nodes)
+        return cls(nodes, softmax=softmax)
 
     @property
     def weights(self) -> list[list[float]]:
@@ -63,9 +71,17 @@ class Layer:
         outputs = []
         for node in self.nodes:
             outputs.append(node.forward(inputs))
+
+        if self.softmax:
+            outputs = softmax_function(outputs)
+            self.last_output = outputs
+
         return outputs
 
     def backward(self, deltas: list[float], learning_rate: float) -> list[float]:
+        if self.softmax:
+            deltas = softmax_derivative(self.last_output, deltas)
+
         propagated = [0.0] * len(self.nodes[0].weights)
 
         for node, delta in zip(self.nodes, deltas):

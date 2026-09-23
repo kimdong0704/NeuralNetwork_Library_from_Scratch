@@ -2,9 +2,22 @@ import numpy as np
 
 from neural_network_np.network import Network
 
+from .config import REPORT_DIGITS
+from .metrics import count_correct
 
-def _to_list(value):
-    return value.tolist() if isinstance(value, np.ndarray) else value
+
+def _format(value: float | list | np.ndarray) -> str:
+    if isinstance(value, np.ndarray):
+        value = value.tolist()
+
+    if isinstance(value, list):
+        return "[" + ", ".join(_format(item) for item in value) + "]"
+
+    return f"{value:.{REPORT_DIGITS}f}"
+
+
+def _format_accuracy(accuracy: float) -> str:
+    return f"{accuracy:.2%}"
 
 
 class Reporter:
@@ -25,40 +38,56 @@ class Reporter:
         for input_row, target_row, prediction_row in zip(inputs, targets, predictions):
             Reporter.prediction(input_row, target_row, prediction_row)
 
+        correct = count_correct(predictions, targets)
+        print(f"\nAccuracy: {_format_accuracy(correct / len(inputs))} ({correct}/{len(inputs)} correct)")
+
     @staticmethod
-    def epoch_summary(epoch: int, total_epochs: int, average_error: float) -> None:
-        print(
+    def epoch_summary(
+        epoch: int,
+        total_epochs: int,
+        average_error: float,
+        accuracy: float,
+        validation_error: float | None = None,
+        validation_accuracy: float | None = None,
+    ) -> None:
+        summary = (
             f"Epoch: {epoch}/{total_epochs} | "
-            f"Average Error: {average_error}"
+            f"Error: {_format(average_error)} | "
+            f"Accuracy: {_format_accuracy(accuracy)}"
         )
 
+        if validation_error is not None and validation_accuracy is not None:
+            summary += (
+                f" | Val Error: {_format(validation_error)} | "
+                f"Val Accuracy: {_format_accuracy(validation_accuracy)}"
+            )
+
+        print(summary)
+
     @staticmethod
-    def _final_error(message: str, epoch: int, total_epochs: int, average_error: float) -> None:
+    def _final_summary(message: str, **metrics) -> None:
         print(message)
-        print("\nFinal Error:")
-        Reporter.epoch_summary(
-            epoch=epoch,
-            total_epochs=total_epochs,
-            average_error=average_error
-        )
+        print("\nFinal Epoch:")
+        Reporter.epoch_summary(**metrics)
 
     @staticmethod
-    def training_completed(epoch: int, total_epochs: int, average_error: float) -> None:
-        Reporter._final_error("Training completed.", epoch, total_epochs, average_error)
+    def training_completed(**metrics) -> None:
+        Reporter._final_summary("Training completed.", **metrics)
 
     @staticmethod
-    def max_epochs_reached(epoch: int, total_epochs: int, average_error: float) -> None:
-        Reporter._final_error(
-            "Reached maximum epochs without meeting the error threshold.",
-            epoch, total_epochs, average_error
-        )
+    def max_epochs_reached(**metrics) -> None:
+        Reporter._final_summary("Reached maximum epochs without meeting the error threshold.", **metrics)
+
+    @staticmethod
+    def evaluation(label: str, error: float, accuracy: float) -> None:
+        print(f"{label} | Error: {_format(error)} | Accuracy: {_format_accuracy(accuracy)}")
 
     @staticmethod
     def final_report(network: Network) -> None:
         print()
         for index, layer in enumerate(network.layers):
-            print(f"Layer {index} weights:\n{_to_list(layer.weights)}")
-            print(f"Layer {index} bias:\n{_to_list(layer.bias)}")
+            print(f"Layer {index} weights:\n{_format(layer.weights)}")
+            print(f"Layer {index} bias:\n{_format(layer.bias)}")
             print()
 
     @staticmethod
@@ -67,7 +96,7 @@ class Reporter:
         target: np.ndarray,
         prediction: np.ndarray,
     ) -> None:
-        print(f"Inputs: {_to_list(input_row)} | Target: {_to_list(target)} | Prediction: {_to_list(prediction)}")
+        print(f"Inputs: {_format(input_row)} | Target: {_format(target)} | Prediction: {_format(prediction)}")
 
     @staticmethod
     def plot_saved(output_path: str) -> None:

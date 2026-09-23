@@ -17,3 +17,9 @@ REPORT_EACH_EPOCH = True
 
 # an epoch report is printed every this many epochs
 REPORT_INTERVAL = 100
+
+# output at/above this is classified as 1 for single-output networks; multi-output networks use the largest output
+DECISION_THRESHOLD = 0.5
+
+# number of decimal places shown for errors, weights and predictions in reports
+REPORT_DIGITS = 4
