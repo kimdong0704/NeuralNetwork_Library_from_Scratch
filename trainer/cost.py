@@ -22,6 +22,17 @@ def cross_entropy_derivative(predicted: float, target: float) -> float:
     # through the softmax jacobian this becomes (target - predicted)
     return target / max(predicted, CROSS_ENTROPY_MIN_CUT)
 
+# Binary Cross Entropy Function
+# each output is its own yes/no probability, so both log(p) and log(1 - p) are clipped
+def binary_cross_entropy_function(predicted: float, target: float) -> float:
+    predicted = min(max(predicted, CROSS_ENTROPY_MIN_CUT), 1.0 - CROSS_ENTROPY_MIN_CUT)
+    return -(target * math.log(predicted) + (1 - target) * math.log(1 - predicted))
+
+def binary_cross_entropy_derivative(predicted: float, target: float) -> float:
+    # through the sigmoid derivative p * (1 - p) this becomes (target - predicted)
+    predicted = min(max(predicted, CROSS_ENTROPY_MIN_CUT), 1.0 - CROSS_ENTROPY_MIN_CUT)
+    return target / predicted - (1 - target) / (1 - predicted)
+
 
 @dataclass(frozen=True)
 class Cost:
@@ -40,4 +51,10 @@ class COSTS:
         name="cross_entropy",
         function=cross_entropy_function,
         derivative=cross_entropy_derivative
+    )
+
+    BINARY_CROSS_ENTROPY = Cost(
+        name="binary_cross_entropy",
+        function=binary_cross_entropy_function,
+        derivative=binary_cross_entropy_derivative
     )

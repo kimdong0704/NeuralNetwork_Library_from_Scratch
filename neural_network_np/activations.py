@@ -9,6 +9,9 @@ from .config import STEP_THRESHOLD
 # silence the warning process-wide instead of paying for a clip() on every call
 np.seterr(over="ignore")
 
+# every derivative takes the layer's output y and the incoming delta and returns delta * dy/dz,
+# so element-wise activations and softmax (whose outputs are coupled) share one signature
+
 # STEP Functions
 def step_function(x: np.ndarray, threshold: float = STEP_THRESHOLD) -> np.ndarray:
     return np.where(x >= threshold, 1.0, 0.0)
@@ -17,16 +20,16 @@ def step_function(x: np.ndarray, threshold: float = STEP_THRESHOLD) -> np.ndarra
 def sigmoid_function(x: np.ndarray) -> np.ndarray:
     return 1 / (1 + np.exp(-x))
 
-def sigmoid_derivative(y: np.ndarray) -> np.ndarray:
-    return y * (1 - y)
+def sigmoid_derivative(y: np.ndarray, delta: np.ndarray) -> np.ndarray:
+    return delta * y * (1 - y)
 
 # RELU Functions
 def relu_function(x: np.ndarray) -> np.ndarray:
     return np.maximum(x, 0.0)
 
-def relu_derivative(y: np.ndarray) -> np.ndarray:
-    # relu derivative is step function
-    return np.where(y > 0, 1.0, 0.0)
+def relu_derivative(y: np.ndarray, delta: np.ndarray) -> np.ndarray:
+    # relu derivative is a step function: the delta passes where the unit was active
+    return delta * (y > 0)
 
 # SOFTMAX Functions
 # softmax couples every output of a layer, so it is applied across the last axis (one row per sample)
@@ -42,8 +45,8 @@ def softmax_derivative(y: np.ndarray, delta: np.ndarray) -> np.ndarray:
 @dataclass(frozen=True)
 class Activation:
     name: str
-    function: Callable[..., np.ndarray]
-    derivative: Callable[..., np.ndarray] | None
+    function: Callable[[np.ndarray], np.ndarray]
+    derivative: Callable[[np.ndarray, np.ndarray], np.ndarray] | None
 
 class ACTIVATIONS:
     STEP = Activation(
@@ -69,3 +72,21 @@ class ACTIVATIONS:
         function=softmax_function,
         derivative=softmax_derivative
     )
+
+    @classmethod
+    def all(cls) -> list[Activation]:
+        return [value for value in vars(cls).values() if isinstance(value, Activation)]
+
+    @classmethod
+    def by_name(cls, name: str) -> Activation:
+        for activation in cls.all():
+            if activation.name == name:
+                return activation
+        raise ValueError(f"unknown activation {name!r}")
+
+    @classmethod
+    def by_function(cls, function: Callable[[np.ndarray], np.ndarray]) -> Activation:
+        for activation in cls.all():
+            if activation.function is function:
+                return activation
+        raise ValueError(f"{function!r} is not one of the ACTIVATIONS")
