@@ -16,13 +16,16 @@ class Trainer:
         self,
         network: Network,
         cost: Cost,
-        learning_rate: float
+        learning_rate: float,
+        classifier: bool = True
     ):
+        """classifier=False is for regression: accuracy is then not measured or reported."""
         self._validate_hidden_layers(network)
 
         self.network = network
         self.cost = cost
         self.learning_rate = learning_rate
+        self.classifier = classifier
         self.reporter = Reporter()
 
     @staticmethod
@@ -67,13 +70,16 @@ class Trainer:
         self.reporter.finish(stopped_early, print_interval)
         return self.history
 
-    def evaluate(self, inputs: Matrix, targets: Matrix) -> tuple[float, float]:
+    def evaluate(self, inputs: Matrix, targets: Matrix) -> tuple[float, float | None]:
         """Returns (cost, accuracy) of the network on the data without training on it."""
         predicted = self.network.forward(inputs)
 
-        return self.cost.function(predicted, targets), count_correct(predicted, targets) / len(targets)
+        return self.cost.function(predicted, targets), self._accuracy(count_correct(predicted, targets), len(targets))
 
-    def _train_epoch(self, loader: DataLoader) -> tuple[float, float]:
+    def _accuracy(self, correct: int, total: int) -> float | None:
+        return correct / total if self.classifier else None
+
+    def _train_epoch(self, loader: DataLoader) -> tuple[float, float | None]:
         total_cost = 0.0
         total_correct = 0
 
@@ -82,9 +88,10 @@ class Trainer:
 
             # measured before the update, so they describe what the network predicted during the epoch
             total_cost += self.cost.function(predicted, targets) * len(inputs)
-            total_correct += count_correct(predicted, targets)
+            if self.classifier:
+                total_correct += count_correct(predicted, targets)
 
             self.network.backward(self.cost.derivative(predicted, targets))
             self.network.step(self.learning_rate)
 
-        return total_cost / len(loader.inputs), total_correct / len(loader.inputs)
+        return total_cost / len(loader.inputs), self._accuracy(total_correct, len(loader.inputs))

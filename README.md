@@ -5,13 +5,14 @@
 ![NumPy](https://img.shields.io/badge/numpy-only-013243)
 
 A feed-forward neural network library written **twice**: once node by node in pure Python, and once
-fully vectorized with NumPy. The two are tested against each other to give the same results. Four
-experiments take the library from a single perceptron that cannot learn XOR to a network that
+fully vectorized with NumPy. The two are tested against each other to give the same results. Seven
+**fundamentals** notebooks build the ideas up from a single neuron to hand-written backpropagation, and
+four **experiments** use the library to go from a perceptron that cannot learn XOR to a network that
 classifies handwritten digits with **98% test accuracy**.
 
-No PyTorch, TensorFlow or scikit-learn. The forward pass, backpropagation (including the full softmax
-Jacobian), mini-batch gradient descent, the cost functions, the training loop and model saving/loading
-are all written by hand.
+The library uses no PyTorch, TensorFlow or scikit-learn. The forward pass, backpropagation (including the
+full softmax Jacobian), mini-batch gradient descent, the cost functions, the training loop and model
+saving/loading are all written by hand.
 
 ## Highlights
 
@@ -24,18 +25,24 @@ are all written by hand.
   and softmax + cross-entropy networks.
 - **Over 200× faster when vectorized.** On MNIST-sized layers the NumPy version trains more than
   200 times faster, and gives the same numbers.
-- **Four experiments with written analysis**: linear separability, hidden layers, generalization and
-  overfitting, hyper-parameter studies, and how a softmax classifier behaves on inputs that are not
-  digits.
+- **Classification and regression.** Softmax + cross-entropy for digits; MSE with a linear output (and
+  `classifier=False`, which drops the accuracy metric) for predicting concrete strength.
+- **A documented learning path**: notebooks covering neurons, baselines and metrics, gradient descent and
+  backpropagation (compared against PyTorch), then experiments on linear separability, hidden layers,
+  overfitting, hyper-parameters, and how a softmax classifier behaves on inputs that are not digits.
 
 ## Results
 
-| Lab | Problem | Network | Result |
+| Experiment | Problem | Network | Result |
 |---|---|---|---|
-| [1](lab1/lab1.ipynb) | AND and XOR gates | 2 → 1 (sigmoid) | AND **100%**. XOR **25%**: one node can only draw one line |
-| [2](lab2/lab2.ipynb) | XOR gate | 2 → 4 → 1 (sigmoid) | **100%**: a hidden layer makes XOR learnable |
-| [3](lab3/lab3.ipynb) | Two moons, 700 train / 300 validation points | 2 → 8 → 1 (sigmoid) | **100%** train, **99.0%** validation |
-| [4](lab4/lab4.ipynb) | MNIST, 60,000 train / 10,000 test images | 784 → 300 → 10 (ReLU, softmax) | **98.0%** test (mean of 5 seeds) after 5–6 epochs; **98.5%** best |
+| [1](notebooks/experiments/01_perceptron_logic_gates.ipynb) | AND and XOR gates | 2 → 1 (sigmoid) | AND **100%**. XOR **25%**: one node can only draw one line |
+| [2](notebooks/experiments/02_hidden_layer_xor.ipynb) | XOR gate | 2 → 4 → 1 (sigmoid) | **100%**: a hidden layer makes XOR learnable |
+| [3](notebooks/experiments/03_two_moons_classification.ipynb) | Two moons, 700 train / 300 validation points | 2 → 8 → 1 (sigmoid) | **100%** train, **99.0%** validation |
+| [4](notebooks/experiments/04_mnist_digit_recognition.ipynb) | MNIST, 60,000 train / 10,000 test images | 784 → 300 → 10 (ReLU, softmax) | **98.0%** test (mean of 5 seeds) after 5–6 epochs; **98.5%** best |
+
+The regression side: in [Fundamentals 7](notebooks/fundamentals/07_numpy_network_concrete_regression.ipynb) an
+8 → 16 → 8 → 1 `numpy_nn` network predicts concrete compressive strength with a test MSE of **31.5**, against
+**286.0** for always predicting the mean.
 
 <table>
   <tr>
@@ -43,18 +50,18 @@ are all written by hand.
     <td><img src="docs/images/xor_hidden_layer.png" alt="A hidden layer separates XOR with a band between two lines"></td>
   </tr>
   <tr>
-    <td align="center"><b>Lab 1:</b> a single node can only draw one line, so XOR fails</td>
-    <td align="center"><b>Lab 2:</b> a hidden layer draws a band, so XOR is solved</td>
+    <td align="center"><b>Experiment 1:</b> a single node can only draw one line, so XOR fails</td>
+    <td align="center"><b>Experiment 2:</b> a hidden layer draws a band, so XOR is solved</td>
   </tr>
 </table>
 
 <img src="docs/images/two_moons_boundary.png" alt="Decision boundary between the two moons on the training and validation sets">
 
-**Lab 3:** the learned boundary between the two crescents. The three validation mistakes are circled.
+**Experiment 3:** the learned boundary between the two crescents. The three validation mistakes are circled.
 
 <img src="docs/images/mnist_non_digits.png" width="620" alt="Softmax probabilities of the MNIST network for random noise, a smiley face and an inverted 7">
 
-**Lab 4, Task E:** the MNIST network gives a confident answer even for inputs that are not digits,
+**Experiment 4:** the MNIST network gives a confident answer even for inputs that are not digits,
 including a 99.9% "2" for a smiley face.
 
 ## One API, two implementations
@@ -132,43 +139,68 @@ Some details:
   With the default of one thread per core, each MNIST batch was about 10× slower because the threads
   spent most of their time coordinating.
 
+The shapes, interfaces and checks behind the design are written up in [`docs/design.md`](docs/design.md).
+
 ## Project structure
 
 ```text
-numpy_nn/             vectorized network: activations, costs, initializers, Layer, Network (save/load .npz)
-numpy_trainer/        DataLoader, Trainer, accuracy metrics, Reporter (per-epoch history), plots
-loop_nn/              pure-Python network with the same modules, plus Node (a single neuron)
-loop_trainer/         the same trainer, written with loops over lists
+src/
+  numpy_nn/            vectorized network: activations, costs, initializers, Layer, Network (save/load .npz)
+  numpy_trainer/       DataLoader, Trainer, accuracy metrics, Reporter (per-epoch history), plots
+  loop_nn/             pure-Python network with the same modules, plus Node (a single neuron)
+  loop_trainer/        the same trainer, written with loops over lists
+notebooks/
+  fundamentals/        01–07: from a single neuron to backpropagation by hand
+  experiments/         01–04: experiments built on numpy_nn
+data/                  every dataset the notebooks use (MNIST, two moons, concrete, auto MPG, …)
+models/                trained MNIST networks, loadable with Network.load
+reports/               write-ups for each experiment (PDF)
 tests/
-  test_equivalence.py loop_nn and numpy_nn agree on forward, backward and whole training runs
-  test_gradients.py   backpropagation matches finite-difference gradients
-  test_training.py    XOR is learned; save/load round-trips for both implementations
-benchmarks/           side-by-side accuracy and speed comparison
-lab1/ … lab4/         experiment notebooks (see below)
-docs/images/          figures used in this README
+  test_equivalence.py  loop_nn and numpy_nn agree on forward, backward and whole training runs
+  test_gradients.py    backpropagation matches finite-difference gradients
+  test_training.py     XOR and a line are learned; save/load round-trips for both implementations
+benchmarks/            side-by-side accuracy and speed comparison
+docs/                  design notes and the figures in this README
 ```
 
-## The labs
+## Learning path
 
-Each lab is a Jupyter notebook that builds its networks with `numpy_nn` and trains them with
-`numpy_trainer`.
+### Fundamentals
 
-- **[Lab 1: single-node perceptron](lab1/lab1.ipynb).** One sigmoid node learns AND but cannot learn
-  XOR: it gets stuck with every output near 0.5 and three of the four points wrong.
-  ([reflection](lab1/CSSE313_Lab1_Reflection.pdf))
-- **[Lab 2: hidden-layer perceptron](lab2/lab2.ipynb).** Adding a hidden layer of four units solves
-  XOR. The loss curve shows the usual slow start followed by a sharp drop once the hidden units
-  specialise. ([reflection](lab2/CSSE313_Lab2_Reflection.pdf))
-- **[Lab 3: two moons](lab3/lab3.ipynb).** On 700 training and 300 validation points the network
-  fits the training set perfectly and reaches 99.0% on validation. Validation loss is lowest at
-  epoch 26 and rises slowly after that, which shows the onset of overfitting.
-- **[Lab 4: MNIST](lab4/lab4.ipynb).** A 784-300-10 ReLU/softmax network trained on all 60,000
-  images with mini-batch SGD and cross-entropy. ([reflection](lab4/CSSE313_Lab4_Reflection.pdf))
+Standalone notebooks that build the ideas the library relies on, ending with the first version of `numpy_nn`.
+
+| # | Notebook | What it covers |
+|---|---|---|
+| 1 | [Data and a pretrained network](notebooks/fundamentals/01_data_and_pretrained_models.ipynb) | pandas on the wine-quality data; a pretrained VGG16 labelling photos as a black box |
+| 2 | [Neurons and activation functions](notebooks/fundamentals/02_neurons_and_activation_functions.ipynb) | a neuron by hand and in NumPy, batches as matrices, hand-designed AND/OR gates |
+| 3 | [Baselines, metrics and softmax](notebooks/fundamentals/03_regression_and_classification_baselines.ipynb) | the simple bias regressor and classifier, MSE, R², cross-entropy, softmax vs sigmoid |
+| 4 | [Gradient descent on a linear neuron](notebooks/fundamentals/04_gradient_descent_linear_neuron.ipynb) | stochastic gradient descent fitting height → weight |
+| 5 | [Backpropagation through a neuron chain](notebooks/fundamentals/05_backpropagation_neuron_chain.ipynb) | a 3-neuron chain with Leaky ReLU and He initialization predicting fuel economy |
+| 6 | [Backpropagation concepts, then PyTorch](notebooks/fundamentals/06_backpropagation_with_pytorch.ipynb) | the chain rule as a sum over paths; a PyTorch regressor for concrete strength |
+| 7 | [A NumPy network, backpropagation by hand](notebooks/fundamentals/07_numpy_network_concrete_regression.ipynb) | the same regressor on `numpy_nn`, with notes on the implementation and its bugs |
+
+### Experiments
+
+Each experiment builds its networks with `numpy_nn` and trains them with `numpy_trainer`.
+
+- **[Experiment 1: single-node perceptron](notebooks/experiments/01_perceptron_logic_gates.ipynb).** One sigmoid
+  node learns AND but cannot learn XOR: it gets stuck with every output near 0.5 and three of the four
+  points wrong. ([report](reports/01_perceptron_logic_gates.pdf))
+- **[Experiment 2: hidden-layer perceptron](notebooks/experiments/02_hidden_layer_xor.ipynb).** Adding a hidden
+  layer of four units solves XOR. The loss curve shows the usual slow start followed by a sharp drop once
+  the hidden units specialise. ([report](reports/02_hidden_layer_xor.pdf))
+- **[Experiment 3: two moons](notebooks/experiments/03_two_moons_classification.ipynb).** On 700 training and
+  300 validation points the network fits the training set perfectly and reaches 99.0% on validation.
+  Validation loss is lowest at epoch 26 and rises slowly after that, which shows the onset of
+  overfitting. ([report](reports/03_two_moons_classification.pdf))
+- **[Experiment 4: MNIST](notebooks/experiments/04_mnist_digit_recognition.ipynb).** A 784-300-10 ReLU/softmax
+  network trained on all 60,000 images with mini-batch SGD and cross-entropy.
+  ([report](reports/04_mnist_digit_recognition.pdf))
   - *Hyper-parameters*: a sweep over hidden size (25 / 256 / 1024), initial weight range (all
     positive, all negative, or both signs) and learning rate. When all the starting weights share one
     sign, the network never learns in 20 epochs: it stays at about 10% accuracy, no better than guessing.
-  - *Input curation*: turning grey pixels into pure black and white reaches the goal faster (5.0 vs
-    5.6 epochs) but lowers test accuracy for every one of the 5 seeds (97.64% vs 98.01%).
+  - *Input curation*: turning grey pixels into pure black and white reaches the accuracy target faster
+    (5.0 vs 5.6 epochs) but lowers test accuracy for every one of the 5 seeds (97.64% vs 98.01%).
   - *Training too long*: after 100 epochs training accuracy is 100%, but test loss has been rising
     since epoch 10, while test accuracy stays flat at about 98.5%.
   - *Non-digit inputs*: noise, a smiley face and an inverted 7 are each assigned a digit with 73–99.9%
@@ -179,14 +211,18 @@ Each lab is a Jupyter notebook that builds its networks with `numpy_nn` and trai
 ```bash
 git clone https://github.com/kimdong0704/Artificial_Intelligence.git
 cd Artificial_Intelligence
-pip install -e ".[dev]"
+pip install -e ".[dev,notebooks]"
 
-pytest                                      # 21 tests
+pytest                                      # 22 tests
 python benchmarks/compare_implementations.py
-jupyter lab                                 # open lab1/ … lab4/
+jupyter lab notebooks/
 ```
 
-The notebooks add the repository root to `sys.path` themselves, so installing only the dependencies
-(`pip install numpy matplotlib threadpoolctl jupyter`) is enough to run them. Labs 1–3 each run in
-seconds. Lab 4 retrains several MNIST networks and takes a while. Its trained models are included in
-[`lab4/models/`](lab4/models), so the Task E cells can load them without retraining.
+The notebooks find the repository root and add `src/` to `sys.path` themselves, so they also run without
+installing the package. The library itself needs only NumPy, Matplotlib and threadpoolctl; the
+`notebooks` extra adds pandas and, for the fundamentals notebooks that compare against it, PyTorch.
+
+Experiments 1–3 each run in seconds. Experiment 4 retrains several MNIST networks and takes a while; its
+trained models are included in [`models/`](models), so the non-digit probe at the end can load them without
+retraining. The ten photos used in Fundamentals 1 are not included (the notebook keeps the outputs of its
+original run).

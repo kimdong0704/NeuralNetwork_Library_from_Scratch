@@ -17,19 +17,24 @@ GRID_COLOR = "#e5e4e0"
 
 
 def plot_history(history: list[EpochResult], title: str | None = None) -> None:
-    """Loss and accuracy per epoch, for the training data and (when recorded) the validation data."""
+    """Loss and (for classifiers) accuracy per epoch, for the training data and, when recorded, the validation data."""
     epochs = [result.epoch for result in history]
-    fig, (loss_ax, accuracy_ax) = plt.subplots(1, 2, figsize=(12, 4))
+    first = history[0]
+    metrics = [("Loss", "loss", "validation_loss")]
+    if first.accuracy is not None:
+        metrics.append(("Accuracy", "accuracy", "validation_accuracy"))
 
-    loss_ax.plot(epochs, [result.loss for result in history], color=TRAIN_COLOR, label="train")
-    accuracy_ax.plot(epochs, [result.accuracy for result in history], color=TRAIN_COLOR, label="train")
+    fig, axes = plt.subplots(1, len(metrics), figsize=(6 * len(metrics), 4), squeeze=False)
+    for ax, (name, train_field, validation_field) in zip(axes[0], metrics):
+        ax.plot(epochs, [getattr(result, train_field) for result in history], color=TRAIN_COLOR, label="train")
+        if getattr(first, validation_field) is not None:
+            ax.plot(
+                epochs, [getattr(result, validation_field) for result in history],
+                color=VALIDATION_COLOR, label="validation"
+            )
+        if name == "Accuracy":
+            ax.yaxis.set_major_formatter(PercentFormatter(1.0))
 
-    if history[0].validation_loss is not None:
-        loss_ax.plot(epochs, [result.validation_loss for result in history], color=VALIDATION_COLOR, label="validation")
-        accuracy_ax.plot(epochs, [result.validation_accuracy for result in history], color=VALIDATION_COLOR, label="validation")
-
-    accuracy_ax.yaxis.set_major_formatter(PercentFormatter(1.0))
-    for ax, name in ((loss_ax, "Loss"), (accuracy_ax, "Accuracy")):
         ax.set_title(f"{name} per epoch", loc="left")
         ax.set_xlabel("Epoch")
         ax.set_ylabel(name)

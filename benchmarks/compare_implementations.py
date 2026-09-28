@@ -9,7 +9,7 @@ from pathlib import Path
 import numpy as np
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(REPO_ROOT))
+sys.path.insert(0, str(REPO_ROOT / "src"))
 
 import loop_nn
 import loop_trainer
@@ -64,15 +64,15 @@ def compare(title, sizes, hidden, output, cost, inputs, targets, batch_size, epo
 
 
 def main():
-    moons = np.loadtxt(REPO_ROOT / "lab3" / "two_moons_train.csv", delimiter=",")
+    moons = np.loadtxt(REPO_ROOT / "data" / "two_moons" / "train.csv", delimiter=",")
     compare(
         "Two moons", [2, 8, 1], "sigmoid", "sigmoid", "MSE",
         moons[:, :2], moons[:, 2:], batch_size=1, epochs=20, learning_rate=0.7
     )
 
     # MNIST-shaped data: a slice of 2,000 images keeps the pure-Python run to a few seconds
-    images = np.frombuffer((REPO_ROOT / "lab4" / "train-images-idx3-ubyte").read_bytes(), dtype=np.uint8, offset=16)
-    labels = np.frombuffer((REPO_ROOT / "lab4" / "train-labels-idx1-ubyte").read_bytes(), dtype=np.uint8, offset=8)
+    images = np.frombuffer((REPO_ROOT / "data" / "mnist" / "train-images-idx3-ubyte").read_bytes(), dtype=np.uint8, offset=16)
+    labels = np.frombuffer((REPO_ROOT / "data" / "mnist" / "train-labels-idx1-ubyte").read_bytes(), dtype=np.uint8, offset=8)
     inputs = images.reshape(-1, 784)[:2000] / 255.0
     targets = np.eye(10)[labels[:2000]]
     compare(

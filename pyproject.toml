@@ -16,12 +16,21 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pytest>=8",
+]
+# the fundamentals notebooks also use pandas and, for comparison, PyTorch
+notebooks = [
     "jupyter",
+    "pandas",
+    "torch",
+    "torchvision",
+    "pillow",
+    "requests",
 ]
 
 [tool.setuptools]
+package-dir = {"" = "src"}
 packages = ["numpy_nn", "numpy_trainer", "loop_nn", "loop_trainer"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["."]
+pythonpath = ["src"]

@@ -6,14 +6,18 @@ from typing import Sequence
 class EpochResult:
     epoch: int
     loss: float
-    accuracy: float
+    accuracy: float | None
     validation_loss: float | None = None
     validation_accuracy: float | None = None
 
     def __str__(self) -> str:
-        summary = f"epoch {self.epoch:>4} | loss: {self.loss:.4f} | accuracy: {self.accuracy:.2%}"
+        summary = f"epoch {self.epoch:>4} | loss: {self.loss:.4f}"
+        if self.accuracy is not None:
+            summary += f" | accuracy: {self.accuracy:.2%}"
         if self.validation_loss is not None:
-            summary += f" | val loss: {self.validation_loss:.4f} | val accuracy: {self.validation_accuracy:.2%}"
+            summary += f" | val loss: {self.validation_loss:.4f}"
+        if self.validation_accuracy is not None:
+            summary += f" | val accuracy: {self.validation_accuracy:.2%}"
         return summary
 
 

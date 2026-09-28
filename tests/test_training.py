@@ -1,6 +1,7 @@
 import numpy as np
 
 import loop_nn
+import loop_trainer
 import numpy_nn
 from numpy_trainer import DataLoader, Trainer
 
@@ -19,6 +20,31 @@ def test_hidden_layer_learns_xor():
     trainer.train(DataLoader(XOR_INPUTS, XOR_TARGETS, batch_size=1, shuffle=False), epochs=5000)
 
     assert trainer.evaluate(XOR_INPUTS, XOR_TARGETS)[1] == 1.0
+
+
+def test_regressors_skip_accuracy():
+    inputs = np.linspace(-1, 1, 20).reshape(-1, 1)
+    targets = 3 * inputs + 1
+
+    numpy_trainer_ = Trainer(
+        numpy_nn.Network(numpy_nn.Layer.build(1, 1, [[0.0]], [0.0], numpy_nn.ACTIVATIONS.IDENTITY)),
+        numpy_nn.COSTS.MSE, learning_rate=0.1, classifier=False
+    )
+    loop_run = loop_trainer.Trainer(
+        loop_nn.Network(loop_nn.Layer.build(1, 1, [[0.0]], [0.0], loop_nn.ACTIVATIONS.IDENTITY)),
+        loop_nn.COSTS.MSE, learning_rate=0.1, classifier=False
+    )
+    numpy_history = numpy_trainer_.train(DataLoader(inputs, targets, batch_size=4, shuffle=False), epochs=50)
+    loop_history = loop_run.train(
+        loop_trainer.DataLoader(inputs.tolist(), targets.tolist(), batch_size=4, shuffle=False), epochs=50
+    )
+
+    for history, trainer in ((numpy_history, numpy_trainer_), (loop_history, loop_run)):
+        assert all(result.accuracy is None for result in history)
+        assert "accuracy" not in str(history[-1])
+        assert history[-1].loss < 1e-3
+    assert numpy_trainer_.evaluate(inputs, targets)[1] is None
+    assert loop_run.evaluate(inputs.tolist(), targets.tolist())[1] is None
 
 
 def test_numpy_network_save_and_load(tmp_path):
