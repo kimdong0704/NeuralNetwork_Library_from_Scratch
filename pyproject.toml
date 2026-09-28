@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "neural-networks-from-scratch"
+version = "1.0.0"
+description = "Feed-forward neural networks built from scratch twice: node-by-node pure Python and vectorized NumPy."
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.26",
+    "matplotlib>=3.8",
+    "threadpoolctl>=3.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "jupyter",
+]
+
+[tool.setuptools]
+packages = ["numpy_nn", "numpy_trainer", "loop_nn", "loop_trainer"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
