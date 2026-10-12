@@ -1,4 +1,4 @@
-# Axis, image shape to (channel, height, width)
+# Axis, image shape to (channel, row, col)
 CHANNEL_AXIS = 0
-HEIGHT_AXIS = 1
-WEIGHT_AXIS = 2
+ROW_AXIS = 1
+COL_AXIS = 2
