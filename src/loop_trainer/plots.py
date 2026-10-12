@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
 from matplotlib.ticker import PercentFormatter
 
-from loop_nn.config import Matrix, Vector
+from loop_utils.config import Matrix, Vector
 from loop_nn.network import Network
 
 from .metrics import DECISION_THRESHOLD

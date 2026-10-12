@@ -1,8 +1,8 @@
 import json
 from pathlib import Path
 
-from .activations import ACTIVATIONS
-from .config import Matrix
+from loop_utils.activations import ACTIVATIONS
+from loop_utils.config import Matrix
 from .layer import Layer
 
 

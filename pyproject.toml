@@ -29,7 +29,7 @@ notebooks = [
 
 [tool.setuptools]
 package-dir = {"" = "src"}
-packages = ["numpy_nn", "numpy_trainer", "loop_nn", "loop_trainer"]
+packages = ["numpy_nn", "numpy_trainer", "numpy_utils", "loop_nn", "loop_trainer", "loop_utils"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

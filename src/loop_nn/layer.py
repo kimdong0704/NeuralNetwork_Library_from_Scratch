@@ -1,5 +1,5 @@
-from .activations import Activation
-from .config import Matrix, Vector
+from loop_utils.activations import Activation
+from loop_utils.config import Matrix, Vector
 from .node import Node
 
 
@@ -58,8 +58,10 @@ class Layer:
         outputs = []
         for row in inputs:
             z = []
+            
             for node in self.nodes:
                 z.append(node.forward(row))
+
             outputs.append(self.activation.function(z))
 
         self.last_output = outputs

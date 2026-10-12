@@ -1,7 +1,7 @@
 import numpy as np
 
-from .activations import Activation
-from .config import DTYPE
+from numpy_utils.activations import Activation
+from numpy_utils.config import DTYPE
 
 
 class Layer:

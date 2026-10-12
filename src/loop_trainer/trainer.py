@@ -1,7 +1,7 @@
 from typing import Callable
 
-from loop_nn.config import Matrix
-from loop_nn.costs import Cost
+from loop_utils.config import Matrix
+from loop_utils.costs import Cost
 from loop_nn.network import Network
 
 from .dataloader import DataLoader

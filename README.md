@@ -67,7 +67,8 @@ including a 99.9% "2" for a smiley face.
 ## One API, two implementations
 
 ```python
-from numpy_nn import ACTIVATIONS, COSTS, Layer, Network, random_weights, zero_bias
+from numpy_nn import Layer, Network
+from numpy_utils import ACTIVATIONS, COSTS, random_weights, zero_bias
 from numpy_trainer import DataLoader, Trainer
 
 network = Network(
@@ -145,10 +146,12 @@ The shapes, interfaces and checks behind the design are written up in [`docs/des
 
 ```text
 src/
-  numpy_nn/            vectorized network: activations, costs, initializers, Layer, Network (save/load .npz)
+  numpy_nn/            vectorized network: Layer, Network (save/load .npz)
   numpy_trainer/       DataLoader, Trainer, accuracy metrics, Reporter (per-epoch history), plots
+  numpy_utils/         config, activations, costs and initializers shared by numpy_nn and numpy_trainer
   loop_nn/             pure-Python network with the same modules, plus Node (a single neuron)
   loop_trainer/        the same trainer, written with loops over lists
+  loop_utils/          the same config, activations, costs and initializers, written with plain lists
 notebooks/
   fundamentals/        01–07: from a single neuron to backpropagation by hand
   experiments/         01–04: experiments built on numpy_nn

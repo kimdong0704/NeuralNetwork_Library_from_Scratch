@@ -13,8 +13,10 @@ sys.path.insert(0, str(REPO_ROOT / "src"))
 
 import loop_nn
 import loop_trainer
+import loop_utils
 import numpy_nn
 import numpy_trainer
+import numpy_utils
 
 
 def build_pair(sizes, hidden, output, seed=0):
@@ -27,8 +29,8 @@ def build_pair(sizes, hidden, output, seed=0):
         weights = rng.uniform(-0.5, 0.5, size=(outputs, inputs))
         bias = np.zeros(outputs)
 
-        numpy_layers.append(numpy_nn.Layer.build(inputs, outputs, weights, bias, numpy_nn.ACTIVATIONS.by_name(name)))
-        loop_layers.append(loop_nn.Layer.build(inputs, outputs, weights.tolist(), bias.tolist(), loop_nn.ACTIVATIONS.by_name(name)))
+        numpy_layers.append(numpy_nn.Layer.build(inputs, outputs, weights, bias, numpy_utils.ACTIVATIONS.by_name(name)))
+        loop_layers.append(loop_nn.Layer.build(inputs, outputs, weights.tolist(), bias.tolist(), loop_utils.ACTIVATIONS.by_name(name)))
 
     return numpy_nn.Network(*numpy_layers), loop_nn.Network(*loop_layers)
 
@@ -42,8 +44,8 @@ def timed(train):
 def compare(title, sizes, hidden, output, cost, inputs, targets, batch_size, epochs, learning_rate):
     numpy_network, loop_network = build_pair(sizes, hidden, output)
 
-    numpy_run = numpy_trainer.Trainer(numpy_network, getattr(numpy_nn.COSTS, cost), learning_rate)
-    loop_run = loop_trainer.Trainer(loop_network, getattr(loop_nn.COSTS, cost), learning_rate)
+    numpy_run = numpy_trainer.Trainer(numpy_network, getattr(numpy_utils.COSTS, cost), learning_rate)
+    loop_run = loop_trainer.Trainer(loop_network, getattr(loop_utils.COSTS, cost), learning_rate)
 
     numpy_result, numpy_seconds = timed(lambda: numpy_run.train(
         numpy_trainer.DataLoader(inputs, targets, batch_size, shuffle=False), epochs

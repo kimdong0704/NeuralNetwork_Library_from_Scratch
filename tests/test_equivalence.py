@@ -4,8 +4,10 @@ import pytest
 
 import loop_nn
 import loop_trainer
+import loop_utils
 import numpy_nn
 import numpy_trainer
+import numpy_utils
 
 TOLERANCE = 1e-9
 
@@ -28,8 +30,8 @@ def build_pair(sizes, hidden, output, seed=0):
         weights = rng.uniform(-1, 1, size=(outputs, inputs))
         bias = rng.uniform(-1, 1, size=outputs)
 
-        numpy_layers.append(numpy_nn.Layer.build(inputs, outputs, weights, bias, numpy_nn.ACTIVATIONS.by_name(name)))
-        loop_layers.append(loop_nn.Layer.build(inputs, outputs, weights.tolist(), bias.tolist(), loop_nn.ACTIVATIONS.by_name(name)))
+        numpy_layers.append(numpy_nn.Layer.build(inputs, outputs, weights, bias, numpy_utils.ACTIVATIONS.by_name(name)))
+        loop_layers.append(loop_nn.Layer.build(inputs, outputs, weights.tolist(), bias.tolist(), loop_utils.ACTIVATIONS.by_name(name)))
 
     return numpy_nn.Network(*numpy_layers), loop_nn.Network(*loop_layers)
 
@@ -49,7 +51,7 @@ def test_forward_and_backward_match(name):
     sizes, hidden, output, cost_name = ARCHITECTURES[name]
     numpy_network, loop_network = build_pair(sizes, hidden, output)
     inputs, targets = make_data(sizes, output)
-    numpy_cost, loop_cost = getattr(numpy_nn.COSTS, cost_name), getattr(loop_nn.COSTS, cost_name)
+    numpy_cost, loop_cost = getattr(numpy_utils.COSTS, cost_name), getattr(loop_utils.COSTS, cost_name)
 
     numpy_predicted = numpy_network.forward(inputs)
     loop_predicted = loop_network.forward(inputs.tolist())
@@ -76,8 +78,8 @@ def test_training_matches(name, batch_size):
     numpy_network, loop_network = build_pair(sizes, hidden, output)
     inputs, targets = make_data(sizes, output)
 
-    numpy_run = numpy_trainer.Trainer(numpy_network, getattr(numpy_nn.COSTS, cost_name), learning_rate=0.1)
-    loop_run = loop_trainer.Trainer(loop_network, getattr(loop_nn.COSTS, cost_name), learning_rate=0.1)
+    numpy_run = numpy_trainer.Trainer(numpy_network, getattr(numpy_utils.COSTS, cost_name), learning_rate=0.1)
+    loop_run = loop_trainer.Trainer(loop_network, getattr(loop_utils.COSTS, cost_name), learning_rate=0.1)
     validation = (inputs[:4], targets[:4])
 
     numpy_history = numpy_run.train(
@@ -105,10 +107,10 @@ def test_stop_when_ends_training_at_the_same_epoch():
     inputs, targets = make_data(sizes, output)
     stop = lambda result: result.epoch == 7
 
-    numpy_history = numpy_trainer.Trainer(numpy_network, numpy_nn.COSTS.MSE, 0.5).train(
+    numpy_history = numpy_trainer.Trainer(numpy_network, numpy_utils.COSTS.MSE, 0.5).train(
         numpy_trainer.DataLoader(inputs, targets, 4, shuffle=False), epochs=50, stop_when=stop
     )
-    loop_history = loop_trainer.Trainer(loop_network, loop_nn.COSTS.MSE, 0.5).train(
+    loop_history = loop_trainer.Trainer(loop_network, loop_utils.COSTS.MSE, 0.5).train(
         loop_trainer.DataLoader(inputs.tolist(), targets.tolist(), 4, shuffle=False), epochs=50, stop_when=stop
     )
 

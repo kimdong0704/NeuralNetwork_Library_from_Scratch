@@ -1,6 +1,6 @@
 import random
 
-from loop_nn.config import Matrix
+from loop_utils.config import Matrix
 
 
 class DataLoader:

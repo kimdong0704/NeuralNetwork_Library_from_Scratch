@@ -3,7 +3,7 @@ from typing import Callable
 import numpy as np
 from threadpoolctl import threadpool_limits
 
-from numpy_nn.costs import Cost
+from numpy_utils.costs import Cost
 from numpy_nn.network import Network
 
 from .dataloader import DataLoader

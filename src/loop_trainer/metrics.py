@@ -1,4 +1,4 @@
-from loop_nn.config import Matrix, Vector
+from loop_utils.config import Matrix, Vector
 
 
 # A single output at/above this is class 1, otherwise class 0

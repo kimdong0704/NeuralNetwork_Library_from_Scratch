@@ -1,4 +1,4 @@
-from .config import Matrix, Vector
+from loop_utils.config import Matrix, Vector
 
 
 class Node:
@@ -27,4 +27,5 @@ class Node:
     def step(self, learning_rate: float) -> None:
         for index, gradient in enumerate(self.weight_gradient):
             self.weights[index] -= learning_rate * gradient
+            
         self.bias -= learning_rate * self.bias_gradient

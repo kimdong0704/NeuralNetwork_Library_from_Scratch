@@ -1,6 +1,6 @@
 import numpy as np
 
-from numpy_nn.config import DTYPE
+from numpy_utils.config import DTYPE
 
 
 class DataLoader:

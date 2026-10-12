@@ -2,7 +2,8 @@
 import numpy as np
 import pytest
 
-from numpy_nn import ACTIVATIONS, COSTS, Layer, Network
+from numpy_nn import Layer, Network
+from numpy_utils import ACTIVATIONS, COSTS
 
 EPSILON = 1e-6
 

@@ -2,8 +2,8 @@ from pathlib import Path
 
 import numpy as np
 
-from .activations import ACTIVATIONS
-from .config import DTYPE
+from numpy_utils.activations import ACTIVATIONS
+from numpy_utils.config import DTYPE
 from .layer import Layer
 
 
