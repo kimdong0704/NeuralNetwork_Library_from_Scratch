@@ -152,6 +152,7 @@ src/
   loop_nn/             pure-Python network with the same modules, plus Node (a single neuron)
   loop_trainer/        the same trainer, written with loops over lists
   loop_utils/          the same config, activations, costs and initializers, written with plain lists
+  mnist/               reading the MNIST idx files, plotting digits with their labels and predictions
 notebooks/
   fundamentals/        01–07: from a single neuron to backpropagation by hand
   experiments/         01–04: experiments built on numpy_nn
