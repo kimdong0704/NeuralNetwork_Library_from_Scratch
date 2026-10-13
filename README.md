@@ -8,7 +8,8 @@ A feed-forward neural network library written **twice**: once node by node in pu
 fully vectorized with NumPy. The two are tested against each other to give the same results. Seven
 **fundamentals** notebooks build the ideas up from a single neuron to hand-written backpropagation, and
 four **experiments** use the library to go from a perceptron that cannot learn XOR to a network that
-classifies handwritten digits with **98% test accuracy**.
+classifies handwritten digits with **98% test accuracy**. A `cnn` package then adds convolution, pooling
+and padding layers in NumPy, which the `lenet5` package stacks into a LeNet-5 forward pass.
 
 The library uses no PyTorch, TensorFlow or scikit-learn. The forward pass, backpropagation (including the
 full softmax Jacobian), mini-batch gradient descent, the cost functions, the training loop and model
@@ -25,6 +26,9 @@ saving/loading are all written by hand.
   and softmax + cross-entropy networks.
 - **Over 200× faster when vectorized.** On MNIST-sized layers the NumPy version trains more than
   200 times faster, and gives the same numbers.
+- **Convolutions without copies.** `Conv2D` and `MaxPool2D` see every sliding window through a
+  strided NumPy view (`as_strided`) instead of copying patches, and a convolution is a single
+  `np.tensordot`. Both are tested against explicit loops.
 - **Classification and regression.** Softmax + cross-entropy for digits; MSE with a linear output (and
   `classifier=False`, which drops the accuracy metric) for predicting concrete strength.
 - **A documented learning path**: notebooks covering neurons, baselines and metrics, gradient descent and
@@ -35,10 +39,10 @@ saving/loading are all written by hand.
 
 | Experiment | Problem | Network | Result |
 |---|---|---|---|
-| [1](notebooks/experiments/01_perceptron_logic_gates.ipynb) | AND and XOR gates | 2 → 1 (sigmoid) | AND **100%**. XOR **25%**: one node can only draw one line |
-| [2](notebooks/experiments/02_hidden_layer_xor.ipynb) | XOR gate | 2 → 4 → 1 (sigmoid) | **100%**: a hidden layer makes XOR learnable |
-| [3](notebooks/experiments/03_two_moons_classification.ipynb) | Two moons, 700 train / 300 validation points | 2 → 8 → 1 (sigmoid) | **100%** train, **99.0%** validation |
-| [4](notebooks/experiments/04_mnist_digit_recognition.ipynb) | MNIST, 60,000 train / 10,000 test images | 784 → 300 → 10 (ReLU, softmax) | **98.0%** test (mean of 5 seeds) after 5–6 epochs; **98.5%** best |
+| [1](notebooks/experiments/11_perceptron_logic_gates.ipynb) | AND and XOR gates | 2 → 1 (sigmoid) | AND **100%**. XOR **25%**: one node can only draw one line |
+| [2](notebooks/experiments/12_hidden_layer_xor.ipynb) | XOR gate | 2 → 4 → 1 (sigmoid) | **100%**: a hidden layer makes XOR learnable |
+| [3](notebooks/experiments/13_two_moons_classification.ipynb) | Two moons, 700 train / 300 validation points | 2 → 8 → 1 (sigmoid) | **100%** train, **99.0%** validation |
+| [4](notebooks/experiments/14_mnist_digit_recognition.ipynb) | MNIST, 60,000 train / 10,000 test images | 784 → 300 → 10 (ReLU, softmax) | **98.0%** test (mean of 5 seeds) after 5–6 epochs; **98.5%** best |
 
 The regression side: in [Fundamentals 7](notebooks/fundamentals/07_numpy_network_concrete_regression.ipynb) an
 8 → 16 → 8 → 1 `numpy_nn` network predicts concrete compressive strength with a test MSE of **31.5**, against
@@ -152,9 +156,13 @@ src/
   loop_nn/             pure-Python network with the same modules, plus Node (a single neuron)
   loop_trainer/        the same trainer, written with loops over lists
   loop_utils/          the same config, activations, costs and initializers, written with plain lists
+  mnist/               reading the MNIST idx files, plotting digits with their labels and predictions
+  cnn/                 image layers on (channels, rows, cols): Pad, Conv2D, MaxPool2D, Flatten
+  lenet5/              LeNet-5 built from cnn layers and numpy_nn dense layers, plus its sanity checks
 notebooks/
   fundamentals/        01–07: from a single neuron to backpropagation by hand
-  experiments/         01–04: experiments built on numpy_nn
+  experiments/         11–14: feed-forward experiments built on numpy_nn
+                       22: the LeNet-5 forward pass, built on cnn and lenet5
 data/                  every dataset the notebooks use (MNIST, two moons, concrete, auto MPG, …)
 models/                trained MNIST networks, loadable with Network.load
 reports/               write-ups for each experiment (PDF)
@@ -162,6 +170,7 @@ tests/
   test_equivalence.py  loop_nn and numpy_nn agree on forward, backward and whole training runs
   test_gradients.py    backpropagation matches finite-difference gradients
   test_training.py     XOR and a line are learned; save/load round-trips for both implementations
+  test_cnn.py          cnn layers match explicit loops; LeNet-5 outputs are valid, deterministic distributions
 benchmarks/            side-by-side accuracy and speed comparison
 docs/                  design notes and the figures in this README
 ```
@@ -186,17 +195,17 @@ Standalone notebooks that build the ideas the library relies on, ending with the
 
 Each experiment builds its networks with `numpy_nn` and trains them with `numpy_trainer`.
 
-- **[Experiment 1: single-node perceptron](notebooks/experiments/01_perceptron_logic_gates.ipynb).** One sigmoid
+- **[Experiment 1: single-node perceptron](notebooks/experiments/11_perceptron_logic_gates.ipynb).** One sigmoid
   node learns AND but cannot learn XOR: it gets stuck with every output near 0.5 and three of the four
   points wrong. ([report](reports/01_perceptron_logic_gates.pdf))
-- **[Experiment 2: hidden-layer perceptron](notebooks/experiments/02_hidden_layer_xor.ipynb).** Adding a hidden
+- **[Experiment 2: hidden-layer perceptron](notebooks/experiments/12_hidden_layer_xor.ipynb).** Adding a hidden
   layer of four units solves XOR. The loss curve shows the usual slow start followed by a sharp drop once
   the hidden units specialise. ([report](reports/02_hidden_layer_xor.pdf))
-- **[Experiment 3: two moons](notebooks/experiments/03_two_moons_classification.ipynb).** On 700 training and
+- **[Experiment 3: two moons](notebooks/experiments/13_two_moons_classification.ipynb).** On 700 training and
   300 validation points the network fits the training set perfectly and reaches 99.0% on validation.
   Validation loss is lowest at epoch 26 and rises slowly after that, which shows the onset of
   overfitting. ([report](reports/03_two_moons_classification.pdf))
-- **[Experiment 4: MNIST](notebooks/experiments/04_mnist_digit_recognition.ipynb).** A 784-300-10 ReLU/softmax
+- **[Experiment 4: MNIST](notebooks/experiments/14_mnist_digit_recognition.ipynb).** A 784-300-10 ReLU/softmax
   network trained on all 60,000 images with mini-batch SGD and cross-entropy.
   ([report](reports/04_mnist_digit_recognition.pdf))
   - *Hyper-parameters*: a sweep over hidden size (25 / 256 / 1024), initial weight range (all
@@ -209,6 +218,19 @@ Each experiment builds its networks with `numpy_nn` and trains them with `numpy_
   - *Non-digit inputs*: noise, a smiley face and an inverted 7 are each assigned a digit with 73–99.9%
     confidence. A softmax classifier has no way to say "none of the above".
 
+### Convolutional networks
+
+The `cnn` layers work on one image at a time, shaped `(channels, rows, cols)`, and LeNet-5 chains them as
+pad → C1 (6 maps, 5×5) → S2 (max pool) → C3 (16 maps) → S4 → C5 (120 maps) → F6 (84, dense) → 10 (softmax).
+So far the network only runs forward; the backward passes for convolution and pooling come next.
+
+- **[LeNet-5 forward pass](notebooks/experiments/22_lenet5_forward.ipynb).** Each building block is checked
+  on an input small enough to verify by hand, and the strided-view windows are shown to equal the copied
+  ones while being about 6× faster to build. An MNIST digit is then traced layer by layer, from
+  (1, 28, 28) to 10 probabilities, with the C1, S2 and S4 feature maps plotted. The untrained network
+  (61,706 parameters) gives a near-uniform output and about 10% accuracy, and all four
+  [`lenet5testing`](src/lenet5/lenet5testing.py) checks pass.
+
 ## Getting started
 
 ```bash
@@ -216,7 +238,7 @@ git clone https://github.com/kimdong0704/Artificial_Intelligence.git
 cd Artificial_Intelligence
 pip install -e ".[dev,notebooks]"
 
-pytest                                      # 22 tests
+pytest                                      # 34 tests
 python benchmarks/compare_implementations.py
 jupyter lab notebooks/
 ```
@@ -225,7 +247,7 @@ The notebooks find the repository root and add `src/` to `sys.path` themselves, 
 installing the package. The library itself needs only NumPy, Matplotlib and threadpoolctl; the
 `notebooks` extra adds pandas and, for the fundamentals notebooks that compare against it, PyTorch.
 
-Experiments 1–3 each run in seconds. Experiment 4 retrains several MNIST networks and takes a while; its
+Experiments 1–3 and the LeNet-5 notebook each run in seconds. Experiment 4 retrains several MNIST networks and takes a while; its
 trained models are included in [`models/`](models), so the non-digit probe at the end can load them without
 retraining. The ten photos used in Fundamentals 1 are not included (the notebook keeps the outputs of its
 original run).
