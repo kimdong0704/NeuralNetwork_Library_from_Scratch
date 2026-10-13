@@ -25,29 +25,29 @@ class Conv2D:
 		self.stride = stride
 
 	def forward(self, inputs: np.ndarray) -> np.ndarray:
-		self.last_input = np.asarray(inputs, dtype=DTYPE)
+		self.last_inputs = np.asarray(inputs, dtype=DTYPE)
 
-		channels = self.last_input.shape[CHANNEL_AXIS]
+		channels = self.last_inputs.shape[CHANNEL_AXIS]
 		if channels != self.in_channels:
 			raise ValueError(f"input has {channels} channels, kernels expect {self.in_channels}")
 
 		# self.last_windows = windows_loop(
-		#     inputs=self.last_input,
+		#     inputs=self.last_inputs,
 		#     window_rows=self.kernel_rows,
 		#     window_cols=self.kernel_cols,
 		#     stride=self.stride
 		# )
 		self.last_windows = windows_fast(
-			inputs=self.last_input,
+			inputs=self.last_inputs,
 			window_rows=self.kernel_rows,
 			window_cols=self.kernel_cols,
 			stride=self.stride
 		)
 
 		self.last_z = self._convolve(self.last_windows)
-		self.last_output = self.activation.function(self.last_z)
+		self.last_outputs = self.activation.function(self.last_z)
 
-		return self.last_output
+		return self.last_outputs
 
 	def _convolve(self, windows: np.ndarray) -> np.ndarray:
 		# matmul weights (out_ch, in_ch, kr, kc)  by windows (in_ch, kr, kc, out_r, out_c)

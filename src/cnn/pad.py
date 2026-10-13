@@ -12,14 +12,14 @@ class Pad:
 		self.amount = amount
 
 	def forward(self, inputs: np.ndarray) -> np.ndarray:
-		self.last_input = np.asarray(inputs, dtype=DTYPE)
-		channels = self.last_input.shape[CHANNEL_AXIS]
-		rows = self.last_input.shape[ROW_AXIS]
-		cols = self.last_input.shape[COL_AXIS]
+		self.last_inputs = np.asarray(inputs, dtype=DTYPE)
+		channels = self.last_inputs.shape[CHANNEL_AXIS]
+		rows = self.last_inputs.shape[ROW_AXIS]
+		cols = self.last_inputs.shape[COL_AXIS]
 
 		padded = np.zeros((channels, rows + 2 * (self.amount), cols + 2 * self.amount), dtype=DTYPE)
-		padded[:, self.amount:self.amount + rows, self.amount:self.amount + cols] = self.last_input
+		padded[:, self.amount:self.amount + rows, self.amount:self.amount + cols] = self.last_inputs
 
-		self.last_output = padded
+		self.last_outputs = padded
 
-		return self.last_output
+		return self.last_outputs

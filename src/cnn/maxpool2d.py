@@ -17,22 +17,22 @@ class MaxPool2D:
 		self.stride = stride
 
 	def forward(self, inputs: np.ndarray) -> np.ndarray:
-		self.last_input = np.asarray(inputs, dtype=DTYPE)
+		self.last_inputs = np.asarray(inputs, dtype=DTYPE)
 
 		# self.last_windows = windows_loop(
-		#     inputs=self.last_input,
+		#     inputs=self.last_inputs,
 		#     window_rows=self.pool_rows,
 		#     window_cols=self.pool_cols,
 		#     stride=self.stride
 		# )
 		self.last_windows = windows_fast(
-			inputs=self.last_input,
+			inputs=self.last_inputs,
 			window_rows=self.pool_rows,
 			window_cols=self.pool_cols,
 			stride=self.stride
 		)
 
 		# max over pool rows and cols
-		self.last_output = np.max(self.last_windows, axis=(WINDOW_ROW_AXIS, WINDOW_COL_AXIS))
+		self.last_outputs = np.max(self.last_windows, axis=(WINDOW_ROW_AXIS, WINDOW_COL_AXIS))
 
-		return self.last_output
+		return self.last_outputs
