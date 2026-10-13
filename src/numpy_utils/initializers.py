@@ -20,5 +20,5 @@ def zero_bias(output_size: int) -> np.ndarray:
     return np.zeros(output_size)
 
 def zero_bias_conv(out_channels: int) -> np.ndarray:
-    # (out_chanels, out_h, out_w)
+    # (out_channels, 1, 1) per map
     return np.zeros((out_channels, 1, 1))

@@ -5,6 +5,9 @@ from numpy_utils.config import DTYPE
 
 from .config import CHANNEL_AXIS, ROW_AXIS, COL_AXIS
 
+def window_count(size: int, window: int, stride: int) -> int:
+	return ((size - window) // stride) + 1
+
 def output_size(
 	inputs: np.ndarray,
 	window_rows: int,
@@ -16,8 +19,8 @@ def output_size(
 	if window_rows > in_r or window_cols > in_c:
 		raise ValueError(f"window {(window_rows, window_cols)} is larger than the input {(in_r, in_c)}")
 
-	out_r = (in_r - window_rows) // stride + 1
-	out_c = (in_c - window_cols) // stride + 1
+	out_r = window_count(in_r, window_rows, stride)
+	out_c = window_count(in_c, window_cols, stride)
 
 	return out_r, out_c
 
