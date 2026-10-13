@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "neural-networks-from-scratch"
-version = "1.0.0"
-description = "Feed-forward neural networks built from scratch twice: node-by-node pure Python and vectorized NumPy."
+version = "2.2.0"
+description = "Neural networks built from scratch: feed-forward networks written twice (pure Python and vectorized NumPy), plus NumPy convolution layers and a LeNet-5 forward pass."
 requires-python = ">=3.10"
 dependencies = [
     "numpy>=1.26",
@@ -29,7 +29,7 @@ notebooks = [
 
 [tool.setuptools]
 package-dir = {"" = "src"}
-packages = ["numpy_nn", "numpy_trainer", "numpy_utils", "loop_nn", "loop_trainer", "loop_utils", "mnist"]
+packages = ["numpy_nn", "numpy_trainer", "numpy_utils", "loop_nn", "loop_trainer", "loop_utils", "mnist", "cnn", "lenet5"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
