@@ -1,10 +1,10 @@
-from typing import Callable
+from typing import Callable, Protocol, Sequence
 
 import numpy as np
 from threadpoolctl import threadpool_limits
 
 from numpy_utils.costs import Cost
-from numpy_nn.network import Network
+from numpy_nn.network import Module
 
 from .dataloader import DataLoader
 from .metrics import count_correct
@@ -15,12 +15,25 @@ from .reporter import EpochResult, Reporter
 BLAS_THREADS = 4
 
 
+class Trainable(Protocol):
+    """Any model the Trainer can fit: a numpy_nn Network or LeNet5."""
+
+    @property
+    def layers(self) -> Sequence[Module]: ...
+
+    def forward(self, inputs: np.ndarray) -> np.ndarray: ...
+
+    def backward(self, deltas: np.ndarray) -> np.ndarray: ...
+
+    def step(self, learning_rate: float) -> None: ...
+
+
 class Trainer:
     """Mini-batch gradient descent: forward, cost, backward and one weight update per batch."""
 
     def __init__(
         self,
-        network: Network,
+        network: Trainable,
         cost: Cost,
         learning_rate: float,
         classifier: bool = True
@@ -35,9 +48,10 @@ class Trainer:
         self.reporter = Reporter()
 
     @staticmethod
-    def _validate_hidden_layers(network: Network) -> None:
+    def _validate_hidden_layers(network: Trainable) -> None:
         for layer in network.layers[:-1]:
-            if not layer.differentiable:
+            # layers without an activation (Pad, MaxPool2D, Flatten) always pass gradients back
+            if not getattr(layer, "differentiable", True):
                 raise ValueError(
                     "Hidden layers need an activation with a derivative for backpropagation; "
                     "only the output layer may use a non-differentiable activation like STEP."

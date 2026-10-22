@@ -4,7 +4,7 @@ from cnn import Conv2D, Flatten, MaxPool2D, Pad
 from numpy_nn import Layer
 from numpy_utils import ACTIVATIONS, random_weights, random_weights_conv, zero_bias, zero_bias_conv
 
-from .config import (
+from .model_config import (
 	C1_MAPS,
     C3_MAPS,
     C5_MAPS,
@@ -18,17 +18,21 @@ from .config import (
     POOL_SIZE,
     POOL_STRIDE,
     WEIGHT_HIGH,
-    WEIGHT_LOW,
+    WEIGHT_LOW
 )
 
 
 class LeNet5:
-	def __init__(self, seed: int | None = None):
+	def __init__(self, seed: int | None = None, weight_low: float = WEIGHT_LOW, weight_high: float = WEIGHT_HIGH):
 		# same seed -> same starting weights
         # None -> different every time
 		if seed is not None:
 			np.random.seed(seed)
-	
+
+		# every weight starts uniform in [weight_low, weight_high[ (the model_config range unless given)
+		self.weight_low = weight_low
+		self.weight_high = weight_high
+
 		self.init_weights()
 		self.build_layers()
 
@@ -39,8 +43,8 @@ class LeNet5:
 			out_channels=C1_MAPS,
 			kernel_rows=KERNEL_SIZE,
 			kernel_cols=KERNEL_SIZE,
-			low=WEIGHT_LOW,
-			high=WEIGHT_HIGH
+			low=self.weight_low,
+			high=self.weight_high
         )
 		self.c1_bias = zero_bias_conv(out_channels=C1_MAPS)
 
@@ -49,8 +53,8 @@ class LeNet5:
             out_channels=C3_MAPS,
             kernel_rows=KERNEL_SIZE,
             kernel_cols=KERNEL_SIZE,
-            low=WEIGHT_LOW,
-            high=WEIGHT_HIGH
+            low=self.weight_low,
+            high=self.weight_high
         )
 		self.c3_bias = zero_bias_conv(out_channels=C3_MAPS)
 
@@ -59,8 +63,8 @@ class LeNet5:
             out_channels=C5_MAPS,
             kernel_rows=KERNEL_SIZE,
             kernel_cols=KERNEL_SIZE,
-            low=WEIGHT_LOW,
-            high=WEIGHT_HIGH
+            low=self.weight_low,
+            high=self.weight_high
         )
 		self.c5_bias = zero_bias_conv(out_channels=C5_MAPS)
 
@@ -68,16 +72,16 @@ class LeNet5:
 		self.f6_weights = random_weights(
 			input_size=FLAT_SIZE,
             output_size=F6_UNITS,
-            low=WEIGHT_LOW,
-            high=WEIGHT_HIGH
+            low=self.weight_low,
+            high=self.weight_high
         )
 		self.f6_bias = zero_bias(output_size=F6_UNITS)
 
 		self.output_weights = random_weights(
 			input_size=F6_UNITS,
             output_size=OUTPUT_UNITS,
-            low=WEIGHT_LOW,
-            high=WEIGHT_HIGH
+            low=self.weight_low,
+            high=self.weight_high
         )
 		self.output_bias = zero_bias(output_size=OUTPUT_UNITS)
 
@@ -96,7 +100,10 @@ class LeNet5:
 		self.f6_layer = Layer.build(input_size=FLAT_SIZE, output_size=F6_UNITS, weight=self.f6_weights, bias=self.f6_bias, activation=ACTIVATIONS.RELU)
 		self.output_layer = Layer.build(input_size=F6_UNITS, output_size=OUTPUT_UNITS, weight=self.output_weights, bias=self.output_bias, activation=ACTIVATIONS.SOFTMAX)
 
-		# Layer.build copies its arrays, so point our names at the copies the layers actually use
+		# Layer.build copies its arrays (Conv2D may too), so point our names at the arrays the layers actually use and step
+		self.c1_weights, self.c1_bias = self.c1_layer.weights, self.c1_layer.bias
+		self.c3_weights, self.c3_bias = self.c3_layer.weights, self.c3_layer.bias
+		self.c5_weights, self.c5_bias = self.c5_layer.weights, self.c5_layer.bias
 		self.f6_weights, self.f6_bias = self.f6_layer.weights, self.f6_layer.bias
 		self.output_weights, self.output_bias = self.output_layer.weights, self.output_layer.bias
 
@@ -118,3 +125,13 @@ class LeNet5:
 		for layer in self.layers:
 			outputs = layer.forward(outputs)
 		return outputs
+
+	def backward(self, deltas: np.ndarray) -> np.ndarray:
+		# deltas: cost derivative w.r.t. the output probabilities, (batch, OUTPUT_UNITS)
+		for layer in reversed(self.layers):
+			deltas = layer.backward(deltas)
+		return deltas
+
+	def step(self, learning_rate: float) -> None:
+		for layer in self.layers:
+			layer.step(learning_rate)

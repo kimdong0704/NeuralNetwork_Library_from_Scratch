@@ -1,0 +1,2 @@
+# --- Gradient descent ---
+LEARNING_RATE = 0.01

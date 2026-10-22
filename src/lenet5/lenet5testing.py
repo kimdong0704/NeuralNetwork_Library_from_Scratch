@@ -11,7 +11,7 @@ import numpy as np
 if not __package__:
 	sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from lenet5.config import IMAGE_SIZE, INPUT_CHANNELS, OUTPUT_UNITS
+from lenet5.model_config import IMAGE_SIZE, INPUT_CHANNELS, OUTPUT_UNITS
 from lenet5.lenet5 import LeNet5
 
 # seeds of the random test images (same numbers as the Java file)
@@ -26,7 +26,8 @@ DIFFERENT_TOLERANCE = 1e-6
 # probabilities must sum to 1 within this (zero / ones tests)
 SUM_TOLERANCE = 1e-6
 
-INPUT_SHAPE = (INPUT_CHANNELS, IMAGE_SIZE, IMAGE_SIZE)
+# a batch of one image: (batch, channels, rows, cols)
+INPUT_SHAPE = (1, INPUT_CHANNELS, IMAGE_SIZE, IMAGE_SIZE)
 
 
 def random_input(seed: int) -> np.ndarray:
@@ -35,12 +36,13 @@ def random_input(seed: int) -> np.ndarray:
 
 
 def print_output(output: np.ndarray) -> None:
-	for digit, probability in enumerate(output):
+	# output is (1, OUTPUT_UNITS): the one image's probabilities
+	for digit, probability in enumerate(output[0]):
 		print(f"  Digit {digit}: {probability:.6f}")
 
 
 def print_result(passed: bool, pass_message: str, fail_message: str) -> None:
-	print(f"✓ PASS: {pass_message}" if passed else f"✗ FAIL: {fail_message}")
+	print(f"PASS: {pass_message}" if passed else f"FAIL: {fail_message}")
 
 
 def is_valid_distribution(output: np.ndarray) -> bool:
@@ -51,7 +53,7 @@ def is_valid_distribution(output: np.ndarray) -> bool:
 	print(f"\nSum: {total:.6f}")
 	print(f"All non-negative: {all_non_negative}")
 
-	return output.shape == (OUTPUT_UNITS,) and abs(total - 1.0) < SUM_TOLERANCE and all_non_negative
+	return output.shape == (1, OUTPUT_UNITS) and abs(total - 1.0) < SUM_TOLERANCE and all_non_negative
 
 
 def test_determinism() -> bool:

@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Generic, Protocol, TypeVar
 
 import numpy as np
 
@@ -7,9 +8,24 @@ from numpy_utils.config import DTYPE
 from .layer import Layer
 
 
-class Network:
-    def __init__(self, *layers: Layer):
-        self.layers = list(layers)
+class Module(Protocol):
+    """Anything Network can chain: dense Layer, Conv2D, MaxPool2D, Pad, Flatten."""
+
+    def forward(self, inputs: np.ndarray) -> np.ndarray: ...
+
+    def backward(self, deltas: np.ndarray) -> np.ndarray: ...
+
+    def step(self, learning_rate: float) -> None: ...
+
+
+L = TypeVar("L", bound=Module)
+
+
+class Network(Generic[L]):
+    """Network(*dense_layers) is a Network[Layer]; mixing in cnn layers gives a Network of their union."""
+
+    def __init__(self, *layers: L):
+        self.layers: list[L] = list(layers)
 
     def forward(self, inputs: np.ndarray) -> np.ndarray:
         outputs = np.asarray(inputs, dtype=DTYPE)
@@ -32,6 +48,8 @@ class Network:
         """Saves every layer's weights, bias and activation name to one .npz file."""
         arrays = {}
         for index, layer in enumerate(self.layers):
+            if not isinstance(layer, Layer):
+                raise TypeError(f"save() only supports dense Layers, got {type(layer).__name__} at index {index}")
             arrays[f"weights_{index}"] = layer.weights
             arrays[f"bias_{index}"] = layer.bias
             arrays[f"activation_{index}"] = np.array(layer.activation.name)
@@ -39,8 +57,8 @@ class Network:
         Path(path).parent.mkdir(parents=True, exist_ok=True)
         np.savez(path, **arrays)
 
-    @classmethod
-    def load(cls, path: str | Path) -> "Network":
+    @staticmethod
+    def load(path: str | Path) -> "Network[Layer]":
         """Rebuilds a network written by save()."""
         layers = []
         with np.load(path) as arrays:
@@ -56,4 +74,4 @@ class Network:
                     activation=ACTIVATIONS.by_name(str(arrays[f"activation_{index}"]))
                 ))
 
-        return cls(*layers)
+        return Network(*layers)

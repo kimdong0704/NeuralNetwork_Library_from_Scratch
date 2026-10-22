@@ -1,5 +1,8 @@
 import numpy as np
+import pytest
 
+from lenet5 import LeNet5
+from lenet5.model_config import IMAGE_SIZE, INPUT_CHANNELS, OUTPUT_UNITS
 import loop_nn
 import loop_trainer
 import loop_utils
@@ -22,6 +25,25 @@ def test_hidden_layer_learns_xor():
     trainer.train(DataLoader(XOR_INPUTS, XOR_TARGETS, batch_size=1, shuffle=False), epochs=5000)
 
     assert trainer.evaluate(XOR_INPUTS, XOR_TARGETS)[1] == 1.0
+
+
+def test_trainer_fits_lenet5():
+    rng = np.random.default_rng(0)
+    inputs = rng.random((8, INPUT_CHANNELS, IMAGE_SIZE, IMAGE_SIZE))
+    targets = np.eye(OUTPUT_UNITS)[rng.integers(OUTPUT_UNITS, size=8)]
+    trainer = Trainer(LeNet5(seed=0), numpy_utils.COSTS.CROSS_ENTROPY, learning_rate=0.05)
+
+    history = trainer.train(DataLoader(inputs, targets, batch_size=4, shuffle=False), epochs=3)
+
+    assert history[-1].loss < history[0].loss
+
+
+def test_trainer_rejects_non_differentiable_hidden_conv():
+    net = LeNet5(seed=0)
+    net.c1_layer.activation = numpy_utils.ACTIVATIONS.STEP
+
+    with pytest.raises(ValueError, match="Hidden layers"):
+        Trainer(net, numpy_utils.COSTS.CROSS_ENTROPY, learning_rate=0.05)
 
 
 def test_regressors_skip_accuracy():

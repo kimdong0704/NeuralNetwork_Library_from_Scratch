@@ -22,8 +22,8 @@ F6_UNITS = 84
 OUTPUT_UNITS = 10
 
 # --- Weight initialization ---
-WEIGHT_LOW = -0.05
-WEIGHT_HIGH = 0.05
+WEIGHT_LOW = -0.1
+WEIGHT_HIGH = 0.1
 
 
 # --- Channel sizes ---
